@@ -22,7 +22,7 @@ Last updated: 2026-11-07
 | 6 | Complete Stocks screen parity | Complete — parity fixes committed and full CI passed on code commit `60e8725ccba8dfc7e6094c14f58700d6f5c2d201` (run `42386634477`) |
 | 7 | Complete Chart screen parity | In progress — four legacy timeframe panes and Worker data are present; added tested older/newer chart-window navigation and retained SMA/EMA alignment |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
-| 9 | Complete Industry Analysis parity | In progress — exact legacy aggregations retained; added full-universe batch run, local browser persistence and combined JSON export; latest CI pending |
+| 9 | Complete Industry Analysis parity | Complete — full-universe batch run, exact legacy aggregations, browser persistence and combined JSON export; CI passed (run `42389197840`) |
 | 10 | Complete Research / Querys parity | Not started |
 | 11 | Complete Market Pulse parity | Not started |
 | 12 | Complete Portfolio parity | Not started |
@@ -44,7 +44,7 @@ Parity gap addressed in this step: the desktop Start button processes all sorted
 
 Live and imported results now persist in browser local storage across reloads, while the existing Export JSON action keeps a portable desktop-compatible file. This is browser-local persistence, not server/database storage. MarketSmith live requests still require the user's current `ms-auth` session; provider tests do not establish real upstream availability.
 
-Added a batch-orchestration test covering multiple industries, result ordering, aggregate progress and combined output. The existing `test:industry` CI command already runs both industry aggregation and live-provider suites. Latest GitHub Actions build/test run is pending; do not treat the full step as CI-verified until it completes successfully.
+Added a batch-orchestration test covering multiple industries, result ordering, aggregate progress and combined output. The existing `test:industry` CI command already runs both industry aggregation and live-provider suites. GitHub Actions build/test passed on commit `c471e6e5d07aec6d965a4ffc77a854f3ab6f329c` (run `42389197840`), including TypeScript build, Wrangler dry-run, reference-data checks and all industry tests.
 
 Browser test after deployment: open Industry Analysis, save a current MarketSmith session in Provider Diagnostics, then use **Run selected industry** for a small industry. Confirm all four series appear and failures are reported. Then use **Run all industries**, watch the overall stock counter and current industry, reload the page to confirm results persist, and use Export JSON to download a five-array-compatible file.
 
