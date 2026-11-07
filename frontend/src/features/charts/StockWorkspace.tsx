@@ -205,6 +205,7 @@ function StockWorkspace({
   const [requestError, setRequestError] = useState("");
   const [retry, setRetry] = useState(0);
   const [visiblePoints, setVisiblePoints] = useState(200);
+  const [chartOffset, setChartOffset] = useState(0);
   const [fundamentalStatus, setFundamentalStatus] = useState<"idle" | "loading" | "ready" | "partial" | "error">("idle");
   const [fundamentalMessage, setFundamentalMessage] = useState("");
   const [liveFundamentals, setLiveFundamentals] = useState<MarketSmithLiveMetrics | null>(null);
@@ -267,11 +268,11 @@ function StockWorkspace({
     for (const timeframe of TIMEFRAMES) {
       const state = states[timeframe.key];
       if (state.status === "ready") {
-        result[timeframe.key] = prepareChartView(state.candles, timeframe.key, visiblePoints);
+        result[timeframe.key] = prepareChartView(state.candles, timeframe.key, visiblePoints, chartOffset);
       }
     }
     return result;
-  }, [states, visiblePoints]);
+  }, [states, visiblePoints, chartOffset]);
 
   const dailyView = views["1D"];
   const dailyChange =
@@ -630,13 +631,13 @@ function StockWorkspace({
                     type="button"
                     key={count}
                     className={visiblePoints === count ? "active" : ""}
-                    onClick={() => setVisiblePoints(count)}
+                    onClick={() => { setVisiblePoints(count); setChartOffset(0); }}
                   >{count}</button>
                 ))}
               </div>
             </div>
             <p className="workspace-chart-note">
-              Yahoo Finance via same-origin Worker · Last {visiblePoints} candles where available · Time labels use IST · SMA 50, EMA 50/200, RSI 21 and volume
+              Yahoo Finance via same-origin Worker · {chartOffset === 0 ? `Latest ${visiblePoints}` : `${chartOffset} candles back · ${visiblePoints} per window`} where available · Time labels use IST · SMA 50, EMA 50/200, RSI 21 and volume
             </p>
             <div className="workspace-chart-grid">
               {TIMEFRAMES.map((timeframe) => {
