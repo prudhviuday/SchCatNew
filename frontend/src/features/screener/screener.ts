@@ -193,3 +193,11 @@ export function resolveWatchlistShortcut(
   if (/^[1-9]$/.test(key)) return watchlistNames[Number(key) - 1] ?? null;
   return undefined;
 }
+
+
+/** Desktop Go/Drop behaviour for the selected watchlist filter. */
+export function toggleWatchlistFilter(activeWatchlist: string, requestedWatchlist: string): string {
+  const requested = requestedWatchlist.trim();
+  if (!requested) return "";
+  return activeWatchlist === requested ? "" : requested;
+}
