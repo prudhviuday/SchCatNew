@@ -18,8 +18,20 @@ export function filterAnalysisStocks(
 }
 
 export function getAnalysisIndustries(records: readonly MarketUniverseRecord[]): string[] {
-  return [...new Set(records.map((record) => record.industry).filter((value): value is string => Boolean(value?.trim())))]
-    .sort((a, b) => a.localeCompare(b));
+  // The desktop tab populated its completer from the workbook's first-seen
+  // industry order. Keep the market-universe order instead of alphabetically
+  // sorting, so Right Arrow / "." cycles in a stable source order.
+  const seen = new Set<string>();
+  const industries: string[] = [];
+  for (const record of records) {
+    const industry = record.industry?.trim();
+    if (!industry) continue;
+    const key = industry.toLocaleLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    industries.push(industry);
+  }
+  return industries;
 }
 
 export function nextAnalysisIndustry(industries: readonly string[], current: string): string {
