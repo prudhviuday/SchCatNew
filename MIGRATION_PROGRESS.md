@@ -23,11 +23,28 @@ Last updated: 2026-11-07
 | 7 | Complete Chart screen parity | In progress — four legacy timeframe panes and Worker data are present; added tested older/newer chart-window navigation and retained SMA/EMA alignment |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
 | 9 | Complete Industry Analysis parity | Complete — full-universe batch run, exact legacy aggregations, browser persistence and combined JSON export; CI passed (run `42389197840`) |
-| 10 | Complete Research / Querys parity | Not started |
+| 10 | Complete Research / Querys parity | In progress — migrated ChartInk queries and Book1 performance symbols now load automatically; ChartInk backtest and research evaluation remain available; CI pending |
 | 11 | Complete Market Pulse parity | Not started |
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
+
+## Step 10 — Research / Querys (in progress)
+
+Compared the original `Tabs/ResearchTab.py` and `util.getHistoryfromQuery` workflow with `Research.tsx`, `research.ts`, and the same-origin ChartInk history provider.
+
+The desktop workflow reads a performance workbook and query workbook, runs each saved ChartInk clause through the historical query endpoint, intersects the returned unique stock universe with the successful-performance stock set, reports Matches and Total, and plots Query vs Match Percentage.
+
+Parity changes in this step:
+- Research now automatically fetches the build-generated `/data/legacyWorkbookData.json` snapshot and loads the migrated saved ChartInk query clauses from `ChartInkQs.xlsx` plus the performance symbol list from `Book1.xlsx`.
+- The imported workbook defaults are used only when the user has not already loaded a replacement CSV; manual CSV imports remain supported.
+- Added validation and tests for migrated workbook query names, clauses, performance symbols, duplicates and malformed legacy data.
+- The existing sequential live ChartInk history backtest, per-query progress, failures, history JSON export/import, evaluation table, match-percentage chart and CSV export remain in place.
+- Unlike the desktop's broad exception handler that writes a failed query as 0%, the web app distinguishes missing/failed historical data from a genuine 0% match result.
+
+The workbook JSON is generated during the frontend prebuild from the archived source workbooks; it is a dated snapshot and does not refresh automatically from the original desktop machine. ChartInk history still depends on the live provider and Cloudflare Worker route.
+
+CI is pending for the latest changes. Browser test after deployment: open Research without importing files and confirm the migrated saved query and performance counts appear; run ChartInk history and verify progress/failure reporting; evaluate the results; then import a replacement query CSV and performance CSV to confirm manual overrides still work.
 
 ## Step 9 — Industry Analysis (in progress)
 
