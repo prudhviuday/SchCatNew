@@ -332,3 +332,44 @@ export function createHistoricalMatchesTemplate(queries: readonly ResearchQuery[
   );
   return JSON.stringify(template, null, 2);
 }
+
+
+export interface LegacyResearchDefaults {
+  queries: ResearchQuery[];
+  performanceSymbols: string[];
+}
+
+/** Read the build-time snapshot generated from ChartInkQs.xlsx and Book1.xlsx. */
+export function parseLegacyResearchDefaults(input: unknown): LegacyResearchDefaults {
+  if (input === null || typeof input !== "object" || Array.isArray(input)) {
+    throw new TypeError("Legacy workbook data must be a JSON object");
+  }
+  const root = input as Record<string, unknown>;
+  const research = root.research;
+  if (research === null || typeof research !== "object" || Array.isArray(research)) {
+    throw new TypeError("Legacy workbook data has no research section");
+  }
+  const data = research as Record<string, unknown>;
+  if (!Array.isArray(data.queries) || !Array.isArray(data.performanceSymbols)) {
+    throw new TypeError("Legacy research data must include queries and performanceSymbols arrays");
+  }
+  const queries = data.queries.map((item, index) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      throw new TypeError(`Legacy query ${index + 1} must be an object`);
+    }
+    const row = item as Record<string, unknown>;
+    const name = typeof row.name === "string" ? row.name.trim() : "";
+    const code = typeof row.code === "string" ? row.code.trim() : "";
+    if (!name || !code) throw new TypeError(`Legacy query ${index + 1} is missing its name or code`);
+    return { name, code };
+  });
+  const names = new Set<string>();
+  for (const query of queries) {
+    const key = query.name.toLocaleLowerCase();
+    if (names.has(key)) throw new RangeError(`Duplicate legacy query name: ${query.name}`);
+    names.add(key);
+  }
+  const performanceSymbols = uniqueSymbols(data.performanceSymbols);
+  if (queries.length === 0) throw new RangeError("Legacy workbook contains no saved ChartInk queries");
+  return { queries, performanceSymbols };
+}
