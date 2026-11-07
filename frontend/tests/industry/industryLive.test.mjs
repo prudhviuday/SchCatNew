@@ -59,3 +59,30 @@ test("stocks without a MarketSmith ID are reported and never requested", async (
   assert.equal(result.successfulStocks, 0);
   assert.deepEqual(result.failures, [{ symbol: "NOID", message: "Missing MarketSmith instrument ID" }]);
 });
+
+
+test("full-universe run processes every industry and returns one combined result set", async () => {
+  const progress = [];
+  const industries = [
+    { industry: "IT", stocks: [stock("AAA", 100)] },
+    { industry: "Banks", stocks: [stock("BBB", 200), stock("CCC", 300)] }
+  ];
+  const { runAllIndustriesLive } = await import("../../.test-dist/features/industry/industryLive.js");
+  const result = await runAllIndustriesLive(industries, "session", {
+    concurrency: 2,
+    onBatchProgress: (value) => progress.push(value),
+    dependencies: {
+      fetchInstitutionalValue: async (item) => [item.symbol === "AAA" ? 10 : 20],
+      fetchCloseVolume: async () => [100],
+      fetchDelivery: async () => ({ deliveryValue: [5], tradedValue: [10] }),
+      fetchRelativeStrength: async () => [100]
+    }
+  });
+  assert.deepEqual(result.results.map((item) => item.industry), ["IT", "Banks"]);
+  assert.deepEqual(result.results.map((item) => item.institutionalValueBillions), [[10], [40]]);
+  assert.equal(result.total, 3);
+  assert.equal(result.completed, 3);
+  assert.equal(result.successfulStocks, 3);
+  assert.deepEqual(progress.map((item) => item.overallCompleted), [1, 2, 3]);
+  assert.deepEqual(progress.map((item) => item.industry), ["IT", "Banks", "Banks"]);
+});
