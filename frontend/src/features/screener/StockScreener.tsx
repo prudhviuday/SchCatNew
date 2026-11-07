@@ -739,9 +739,9 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           <button
             type="button"
             className="screener-button secondary screener-command-button"
-            onClick={() => { setActiveWatchlist(watchlistTarget); setPage(0); }}
+            onClick={() => { setActiveWatchlist((current) => toggleWatchlistFilter(current, watchlistTarget)); setPage(0); }}
           >
-            Go
+            {activeWatchlist && activeWatchlist === watchlistTarget ? "Drop" : "Go"}
           </button>
         </div>
 
