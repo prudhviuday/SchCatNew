@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MarketUniverseRecord } from "../../data/reference/marketUniverse";
 import { loadMarketUniverse } from "../../data/reference/marketUniverse";
 import { readStoredMarketSmithAuth } from "../../data/providers/providerDiagnostics";
-import { runLiveIndustryAnalysis } from "./industryLive";
+import { runAllIndustriesLive, runLiveIndustryAnalysis } from "./industryLive";
 import {
   buildIndustryReferenceSummaries,
   filterIndustrySummaries,
@@ -115,10 +115,12 @@ function IndustryAnalysis({
   const [importError, setImportError] = useState("");
   const [importLabel, setImportLabel] = useState("");
   const [liveRunning, setLiveRunning] = useState(false);
+  const [batchRunning, setBatchRunning] = useState(false);
   const [liveProgress, setLiveProgress] = useState({ completed: 0, total: 0, symbol: "" });
   const [liveError, setLiveError] = useState("");
   const [liveFailures, setLiveFailures] = useState<Array<{ symbol: string; message: string }>>([]);
   const [liveResultIndustries, setLiveResultIndustries] = useState<string[]>([]);
+  const [batchIndustry, setBatchIndustry] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -184,6 +186,47 @@ function IndustryAnalysis({
       setLiveError(error instanceof Error ? error.message : "Live industry analysis failed");
     } finally {
       setLiveRunning(false);
+    }
+  }
+
+  async function runAllIndustries() {
+    if (batchRunning || liveRunning || summaries.length === 0) return;
+    setLiveError("");
+    setLiveFailures([]);
+    const auth = readStoredMarketSmithAuth();
+    if (!auth) {
+      setLiveError("A MarketSmith session is required. Open Provider Diagnostics, save your current ms-auth value, then return here.");
+      return;
+    }
+    setBatchRunning(true);
+    const total = summaries.reduce((sum, item) => sum + item.stockCount, 0);
+    setLiveProgress({ completed: 0, total, symbol: "" });
+    setBatchIndustry("");
+    try {
+      const batch = await runAllIndustriesLive(summaries, auth, {
+        concurrency: 3,
+        onBatchProgress: (progress) => {
+          setLiveProgress({
+            completed: progress.overallCompleted,
+            total: progress.overallTotal,
+            symbol: progress.symbol
+          });
+          setBatchIndustry(progress.industry);
+        }
+      });
+      setSavedResults(batch.results);
+      setLiveResultIndustries(batch.results.map((item) => item.industry));
+      setLiveFailures(batch.failures);
+      setImportLabel("Full-universe live run · " + new Date().toLocaleString("en-IN"));
+      if (batch.successfulStocks === 0) {
+        setLiveError("No constituents completed all four provider requests. Check the failure list and Provider Diagnostics.");
+      } else if (batch.failures.length > 0) {
+        setLiveError(`Completed with partial coverage: ${batch.successfulStocks}/${batch.total} stocks contributed across all industries.`);
+      }
+    } catch (error) {
+      setLiveError(error instanceof Error ? error.message : "Full-universe industry analysis failed");
+    } finally {
+      setBatchRunning(false);
     }
   }
 
