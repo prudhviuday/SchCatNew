@@ -95,3 +95,18 @@ test("weekly close-volume history rounds to two decimals and rejects invalid lim
   assert.equal(prepareWeeklyCloseVolume(candles)[0].value, 12.35);
   assert.throws(() => prepareWeeklyCloseVolume(candles, 0), RangeError);
 });
+
+
+test("chart windows can page into older candles and return toward the latest window", () => {
+  const input = candles(30);
+  const latest = prepareChartView(input, "1D", 10);
+  const older = prepareChartView(input, "1D", 10, 10);
+  const oldest = prepareChartView(input, "1D", 10, 40);
+  assert.equal(latest.points.length, 10);
+  assert.equal(latest.points[0].close, 121);
+  assert.equal(older.points[0].close, 111);
+  assert.equal(older.points.at(-1).close, 120);
+  assert.equal(oldest.points.length, 0);
+  assert.throws(() => prepareChartView(input, "1D", 10, -1), RangeError);
+  assert.throws(() => prepareChartView(input, "1D", 10, 1.5), RangeError);
+});
