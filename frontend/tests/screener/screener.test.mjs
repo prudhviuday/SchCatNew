@@ -7,7 +7,8 @@ import {
   parseSymbolList,
   sortScreenerRecords,
   toggleIndustryDrilldown,
-  resolveWatchlistShortcut
+  resolveWatchlistShortcut,
+  toggleWatchlistFilter
 } from "../../.test-dist/features/screener/screener.js";
 
 const rows = [
@@ -154,4 +155,12 @@ test("desktop watchlist shortcuts map Right Arrow and 1–9 in watchlist order",
   assert.equal(resolveWatchlistShortcut("2", "Core", names), "Breakouts");
   assert.equal(resolveWatchlistShortcut("9", "Core", names), null);
   assert.equal(resolveWatchlistShortcut("a", "Core", names), undefined);
+});
+
+
+test("watchlist Go toggles the active filter off with Drop", () => {
+  assert.equal(toggleWatchlistFilter("", "Core"), "Core");
+  assert.equal(toggleWatchlistFilter("Core", "Core"), "");
+  assert.equal(toggleWatchlistFilter("Core", "Breakouts"), "Breakouts");
+  assert.equal(toggleWatchlistFilter("Core", ""), "");
 });
