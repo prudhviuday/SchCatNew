@@ -1,0 +1,34 @@
+name: Static build verification
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+      - name: Build portable static site
+        working-directory: frontend
+        run: npm run build
+      - name: Verify core calculations
+        working-directory: frontend
+        run: |
+          npm run test:analysis
+          npm run test:indicators
+          npm run test:screener
+          npm run test:workspace
+          npm run test:industry
+          npm run test:research
+          npm run test:market-pulse
+          npm run test:portfolio
