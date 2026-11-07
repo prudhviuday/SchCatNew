@@ -19,7 +19,7 @@ Last updated: 2026-11-07
 | 3 | Integrate SchCatWeb API gateway into SchCatNew | Complete in repository — Worker, Wrangler config and route tests added; Cloudflare production build status still unverified/failed |
 | 4 | Complete provider integration and verify live upstream behaviour | Complete — user confirmed the SchCatNew Cloudflare site is working; MarketSmith data still requires a valid browser `ms-auth` session |
 | 5 | Port shared Python calculations and utilities | Complete — audited the legacy utility layer, retained existing calculation ports, and added tested shared metric-presentation rules |
-| 6 | Complete Stocks screen parity | In progress — completed parity fixes for row double-click chart navigation, legacy EPS header naming, and watchlist Go/Drop toggling; CI verification running |
+| 6 | Complete Stocks screen parity | Complete — parity fixes committed and full CI passed on code commit `60e8725ccba8dfc7e6094c14f58700d6f5c2d201` (run `42386634477`) |
 | 7 | Complete Chart screen parity | Not started |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | Not started |
 | 9 | Complete Industry Analysis parity | Not started |
@@ -37,7 +37,7 @@ Compared the web Stocks screen against `Guimain2.py` and `helper.py`. The web im
 - Watchlist Go now toggles to Drop when the same watchlist is active, and Drop clears the watchlist filter, matching the original desktop toggle behaviour.
 - Added unit coverage for the watchlist Go/Drop transition.
 
-The latest CI run is in progress; the earlier Step 5 full CI run completed successfully. Do not mark Step 6 complete until the latest build and test run passes.
+The latest full CI run passed, including the frontend build, Wrangler dry-run, reference data checks, and all calculation/feature test groups.
 
 ## Step 5 — shared calculations and utilities
 
