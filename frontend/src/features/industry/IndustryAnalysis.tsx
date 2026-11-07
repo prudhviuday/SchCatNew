@@ -23,6 +23,14 @@ function readBrowserSavedResults(): LegacyIndustryResult[] {
   }
 }
 
+function hasBrowserSavedResults(): boolean {
+  try {
+    return window.localStorage.getItem(INDUSTRY_RESULTS_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 function numberText(value: number): string {
   return new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value);
 }
@@ -124,7 +132,7 @@ function IndustryAnalysis({
   const [selectedIndustry, setSelectedIndustry] = useState("");
   const [savedResults, setSavedResults] = useState<LegacyIndustryResult[]>(() => readBrowserSavedResults());
   const [importError, setImportError] = useState("");
-  const [importLabel, setImportLabel] = useState(() => window.localStorage.getItem(INDUSTRY_RESULTS_STORAGE_KEY) ? "Restored from this browser" : "");
+  const [importLabel, setImportLabel] = useState(() => hasBrowserSavedResults() ? "Restored from this browser" : "");
   const [liveRunning, setLiveRunning] = useState(false);
   const [batchRunning, setBatchRunning] = useState(false);
   const [liveProgress, setLiveProgress] = useState({ completed: 0, total: 0, symbol: "" });
