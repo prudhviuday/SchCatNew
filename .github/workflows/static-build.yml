@@ -28,6 +28,7 @@ jobs:
         working-directory: frontend
         run: |
           npm run test:analysis
+          npm run test:stock-metric-presentation
           npm run test:charts
           npm run test:providers
           npm run test:indicators
