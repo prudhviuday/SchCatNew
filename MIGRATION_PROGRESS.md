@@ -22,12 +22,31 @@ Last updated: 2026-11-07
 | 6 | Complete Stocks screen parity | Complete — parity fixes committed and full CI passed on code commit `60e8725ccba8dfc7e6094c14f58700d6f5c2d201` (run `42386634477`) |
 | 7 | Complete Chart screen parity | In progress — four legacy timeframe panes and Worker data are present; added tested older/newer chart-window navigation and retained SMA/EMA alignment |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
-| 9 | Complete Industry Analysis parity | Not started |
+| 9 | Complete Industry Analysis parity | In progress — exact legacy aggregations retained; added full-universe batch run, local browser persistence and combined JSON export; latest CI pending |
 | 10 | Complete Research / Querys parity | Not started |
 | 11 | Complete Market Pulse parity | Not started |
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
+
+## Step 9 — Industry Analysis (in progress)
+
+Compared the original `Tabs/IndustryAnalysisTab.py` and `util.py` with `IndustryAnalysis.tsx`, `industryAnalysis.ts`, `industryLive.ts`, and the Yahoo / MarketSmith / NSE provider adapters.
+
+The existing calculation port preserves the desktop formulas and ordering:
+- Institutional value uses MarketSmith fund-held shares multiplied by current price and divided by ₹1 billion, truncated to an integer.
+- Close × volume uses weekly Yahoo candles, divided by ₹1 billion, rounded to two decimals, and limited to the latest 30 observations.
+- NSE delivery and traded-value series use the original five-session rolling averages and the desktop's zero-prefix alignment before calculating the combined delivery percentage.
+- MarketSmith RS fills missing values with the stock's integer average, reverses the provider's newest-first rows, weights each stock's RS by the reference-workbook market cap, and divides by the legacy industry market-cap denominator. The denominator includes every constituent, including stocks whose provider request failed, and preserves the original initial +1 / missing-cap fallback.
+- Institutional, turnover and RS series retain the desktop's first-value prefix alignment; delivery/traded series retain zero-prefix alignment. Saved five-array JSON remains import/export compatible.
+
+Parity gap addressed in this step: the desktop Start button processes all sorted non-BSE industries and writes one combined JSON result, while the initial web screen only ran the selected industry. Added **Run all industries** alongside **Run selected industry**. The batch runner processes industries sequentially with bounded per-industry stock concurrency, reports overall progress and industry name, lists failed constituents by industry, and returns one combined five-series result set. Existing selected-industry mode remains available.
+
+Live and imported results now persist in browser local storage across reloads, while the existing Export JSON action keeps a portable desktop-compatible file. This is browser-local persistence, not server/database storage. MarketSmith live requests still require the user's current `ms-auth` session; provider tests do not establish real upstream availability.
+
+Added a batch-orchestration test covering multiple industries, result ordering, aggregate progress and combined output. The existing `test:industry` CI command already runs both industry aggregation and live-provider suites. Latest GitHub Actions build/test run is pending; do not treat the full step as CI-verified until it completes successfully.
+
+Browser test after deployment: open Industry Analysis, save a current MarketSmith session in Provider Diagnostics, then use **Run selected industry** for a small industry. Confirm all four series appear and failures are reported. Then use **Run all industries**, watch the overall stock counter and current industry, reload the page to confirm results persist, and use Export JSON to download a five-array-compatible file.
 
 ## Step 8 — Industry Stocks / multi-stock Analysis (in progress)
 
