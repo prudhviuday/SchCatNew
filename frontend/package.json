@@ -1,0 +1,45 @@
+{
+  "name": "schcatweb-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test:analysis": "tsc -p tsconfig.analysis-tests.json && node --test tests/analysis/fundamentalMetrics.test.mjs",
+    "test:providers": "tsc -p tsconfig.analysis-tests.json && node --test tests/providers/providerDiagnostics.test.mjs",
+    "test:charts": "tsc -p tsconfig.analysis-tests.json && node --test tests/providers/chartData.test.mjs",
+    "test:indicators": "tsc -p tsconfig.analysis-tests.json && node --test tests/analysis/technicalIndicators.test.mjs",
+    "test:reference": "tsc -p tsconfig.analysis-tests.json && node --test tests/reference/*.test.mjs",
+    "test:screener": "tsc -p tsconfig.analysis-tests.json && node --test tests/screener/screener.test.mjs",
+    "test:watchlists": "tsc -p tsconfig.analysis-tests.json && node --test tests/screener/watchlists.test.mjs",
+    "test:workspace": "tsc -p tsconfig.analysis-tests.json && node --test tests/charts/*.test.mjs",
+    "test:industry": "tsc -p tsconfig.analysis-tests.json && node --test tests/industry/*.test.mjs",
+    "test:research": "tsc -p tsconfig.analysis-tests.json && node --test tests/research/*.test.mjs",
+    "test:market-pulse": "tsc -p tsconfig.analysis-tests.json && node --test tests/marketPulse/*.test.mjs",
+    "test:portfolio": "tsc -p tsconfig.analysis-tests.json && node --test tests/portfolio/*.test.mjs",
+    "test:integration": "node --test tests/integration/*.test.mjs",
+    "test:marketsmith": "tsc -p tsconfig.analysis-tests.json && node --test tests/providers/marketSmithStockData.test.mjs",
+    "test:multi-stock-analysis": "tsc -p tsconfig.analysis-tests.json && node --test tests/analysis/multiStockAnalysis.test.mjs",
+    "test:right-panel": "tsc -p tsconfig.analysis-tests.json && node --test tests/charts/rightPanelCharts.test.mjs",
+    "test:chartink": "tsc -p tsconfig.analysis-tests.json && node --test tests/providers/chartInk.test.mjs",
+    "test:industry-live": "tsc -p tsconfig.analysis-tests.json && node --test tests/industry/industryLive.test.mjs",
+    "test:chartink-history": "tsc -p tsconfig.analysis-tests.json && node --test tests/providers/chartInkHistory.test.mjs",
+    "test:nikscore": "tsc -p tsconfig.analysis-tests.json && node --test tests/screener/nikScore.test.mjs"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "overrides": {
+    "electron-to-chromium": "1.5.477"
+  }
+}

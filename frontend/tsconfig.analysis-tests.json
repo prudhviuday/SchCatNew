@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": ".test-dist",
+    "rootDir": "src",
+    "types": []
+  },
+  "files": [
+    "src/domain/analysis/fundamentalMetrics.ts",
+    "src/domain/analysis/technicalIndicators.ts",
+    "src/data/providers/providerDiagnostics.ts",
+    "src/data/providers/chartData.ts",
+    "src/data/reference/marketSmithIds.ts",
+    "src/data/reference/marketUniverse.ts",
+    "src/data/reference/industries.ts",
+    "src/features/screener/screener.ts",
+    "src/features/screener/nikScore.ts",
+    "src/features/screener/watchlists.ts",
+    "src/features/charts/chartPresentation.ts",
+    "src/features/industry/industryAnalysis.ts",
+    "src/features/industry/industryLive.ts",
+    "src/features/research/research.ts",
+    "src/features/marketPulse/marketPulse.ts",
+    "src/features/portfolio/portfolio.ts",
+    "src/data/providers/marketSmithStockData.ts",
+    "src/data/providers/nseDelivery.ts",
+    "src/features/analysis/multiStockAnalysis.ts",
+    "src/features/charts/rightPanelCharts.ts",
+    "src/data/providers/chartInk.ts",
+    "src/data/providers/chartInkHistory.ts"
+  ],
+  "include": []
+}
