@@ -21,8 +21,14 @@ test("empty query returns no stocks and result count never exceeds twelve", () =
   assert.equal(filterAnalysisStocks(many, "electrical", 3).length, 3);
 });
 
-test("industry suggestions are unique and alphabetically sorted", () => {
-  assert.deepEqual(getAnalysisIndustries(records), ["Electrical Equipment", "IT Services"]);
+test("industry suggestions are unique and retain first-seen source order", () => {
+  const reversed = [
+    { ...records[2], industry: "IT Services" },
+    { ...records[0], industry: "Electrical Equipment" },
+    { ...records[1], industry: "electrical equipment" },
+    records[3]
+  ];
+  assert.deepEqual(getAnalysisIndustries(reversed), ["IT Services", "Electrical Equipment"]);
 });
 
 test("industry cycling starts at the first match and wraps around", () => {
@@ -55,4 +61,15 @@ test("daily and weekly chart gallery ranges are bounded to their provider histor
   const now = Date.UTC(2026, 10, 7);
   assert.equal(getAnalysisRangeStart("3M", now), Math.floor(now / 1000) - 90 * 24 * 60 * 60);
   assert.equal(getAnalysisRangeStart("5Y", now), Math.floor(now / 1000) - 1825 * 24 * 60 * 60);
+});
+
+
+test("industry suggestions ignore case-only duplicates and blank industry labels", () => {
+  const input = [
+    { ...records[0], industry: "  Power Equipment  " },
+    { ...records[1], industry: "power equipment" },
+    { ...records[2], industry: "   " },
+    { ...records[3], industry: "IT Services" }
+  ];
+  assert.deepEqual(getAnalysisIndustries(input), ["Power Equipment", "IT Services"]);
 });
