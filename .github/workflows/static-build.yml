@@ -15,12 +15,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install frontend dependencies
-        working-directory: frontend
+      - name: Install Worker toolchain
         run: npm install
-      - name: Build portable static site
-        working-directory: frontend
+      - name: Build Worker and portable static site
         run: npm run build
+      - name: Validate Wrangler Worker bundle and static asset binding
+        run: npx wrangler deploy --dry-run
       - name: Verify migrated reference and workbook data
         working-directory: frontend
         run: npm run test:reference
