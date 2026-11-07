@@ -73,11 +73,15 @@ Added a root `package.json` that pins Wrangler 4.158.0 and defines `build`, `dep
 
 The current provider diagnostics page can test health plus live Yahoo, MarketSmith finance/symbol/relative-strength, ChartInk and NSE delivery routes. MarketSmith still requires the user's valid current `ms-auth` value, entered locally in that browser. Real provider upstream access has not yet been verified because the Cloudflare Worker build/deployment is not confirmed. Do not describe mocked tests as live provider tests.
 
+CI now installs the root Worker toolchain, runs the root `npm run build`, executes `npx wrangler deploy --dry-run`, and runs all existing frontend test groups including the chart and provider diagnostics tests. The dry-run successfully bundled the Worker (17.06 KiB, 4.32 KiB gzip) and all CI test groups passed on commit `7f1754647fa7e42f421f6861073fa250fa0eec4b` (run `42366127997`). Cloudflare Workers Builds still reports a separate deployment-check failure for that commit. This confirms the source Worker/config can bundle locally in CI; it does not prove Cloudflare has deployed it.
+
+**User action required to unblock live verification:** In Cloudflare Dashboard → Workers & Pages → `schcatnew` → Settings → Build, set Root directory to repository root (blank), Build command to `npm run build`, and Deploy command to `npx wrangler deploy`; save and retry/retrigger the build. The repo now has the root `package.json` and pinned Wrangler 4.158.0 required for this setup. Then provide the result/build log or say when it completes so live `/api/health` and provider checks can be run.
+
 ## Latest verified repository state
 - Branch: `main`
-- Latest Step 3 commit: `40a13f839f86bf8d491683f93f765fb51372dc09`
-- CI run: `https://github.com/prudhviuday/SchCatNew/actions/runs/42356128890` — success.
-- Cloudflare build: `https://dash.cloudflare.com/25cbd8f5e7df317d5d1f2bb3a94452f1/workers/services/view/schcatnew/production/builds/c97b8f3e-41f2-47db-9c9d-645c42e03720` — failed; reason not available in the GitHub check summary.
+- Latest Step 4 code/CI commit: `7f1754647fa7e42f421f6861073fa250fa0eec4b`
+- CI run: `https://github.com/prudhviuday/SchCatNew/actions/runs/42366127997` — success, including root build and Wrangler dry-run.
+- Cloudflare build: `https://dash.cloudflare.com/25cbd8f5e7df317d5d1f2bb3a94452f1/workers/services/view/schcatnew/production/builds/a3ece1a6-bf11-4bd3-b02b-3adc7b6e091b` — failed; exact reason not available in GitHub check summary. Cloudflare dashboard build settings need checking.
 
 ## Next action
 Continue with **Step 4/14**: compare every frontend provider request with the Worker routes, test upstream provider reachability/authentication, resolve the Cloudflare Worker build failure if possible, and report any provider-specific restrictions. Keep the distinction between mocked tests and real upstream verification explicit.
