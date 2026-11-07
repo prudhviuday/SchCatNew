@@ -22,6 +22,7 @@ import {
   SCREENER_COLUMNS,
   sortScreenerRecords,
   resolveWatchlistShortcut,
+  toggleWatchlistFilter,
   type ScreenerNumericField,
   type ScreenerSortField,
   type ScreenerRow
@@ -52,7 +53,7 @@ const RANGE_LABELS: Record<ScreenerNumericField, string> = {
   nikScore: "NikScore*",
   groupRank: "Group Rank",
   rs: "RS",
-  epsRank: "EPS Rank",
+  epsRank: "EPS",
   masterScore: "MasterScore",
   pe: "PE",
   peg: "PEG",
@@ -817,6 +818,11 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
                     className={selectedStock?.symbol === record.symbol ? "selected" : ""}
                     aria-selected={selectedStock?.symbol === record.symbol}
                     onClick={() => setSelectedStock(record)}
+                    onDoubleClick={(event) => {
+                      if ((event.target as HTMLElement).closest("[data-industry-cell]")) return;
+                      onOpenStock(record);
+                    }}
+                    title="Click to select · Double-click to open chart"
                   >
                     {SCREENER_COLUMNS.map((column) => (
                       <td data-column={column.key} className={column.numeric ? "numeric" : undefined} key={column.key}>
@@ -888,7 +894,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
                 {[
                   ["MasterScore", selectedMetrics?.masterScore],
                   ["RS", selectedMetrics?.rs],
-                  ["EPS Rank", selectedMetrics?.epsRank],
+                  ["EPS", selectedMetrics?.epsRank],
                   ["Acc/Dis", selectedMetrics?.accDis],
                   ["PE", selectedMetrics?.pe],
                   ["PEG", selectedMetrics?.peg],
