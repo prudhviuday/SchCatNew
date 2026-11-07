@@ -17,7 +17,7 @@ Last updated: 2026-11-07
 | 1 | Audit original Python app against SchCatNew | Complete — source audit only; no files modified |
 | 2 | Migrate original reference workbooks, saved queries, watchlists, portfolio and Industry Analysis history | Complete — data archived and browser JSON conversion added |
 | 3 | Integrate SchCatWeb API gateway into SchCatNew | Complete in repository — Worker, Wrangler config and route tests added; Cloudflare production build status still unverified/failed |
-| 4 | Complete provider integration and verify live upstream behaviour | Not started |
+| 4 | Complete provider integration and verify live upstream behaviour | In progress — fixed frontend routing/diagnostics; live provider check blocked until Cloudflare build settings are corrected |
 | 5 | Port shared Python calculations and utilities | Not started |
 | 6 | Complete Stocks screen parity | Not started |
 | 7 | Complete Chart screen parity | Not started |
@@ -61,6 +61,17 @@ Routes: `GET /api/health`, `GET /api/yahoo/chart`, `GET /api/marketsmith/finance
 Added `frontend/tests/integration/workerApi.test.mjs`, copied/adapted from SchCatWeb, and CI now runs `npm run test:integration`. The successful CI run verified 22 Worker API cases, including mocked upstream handling for Yahoo, MarketSmith, ChartInk CSRF/history, NSE session bootstrap, method/input validation, unknown API routes and static asset forwarding. These are mocked route tests, not evidence that real provider upstreams or the deployed URL currently work.
 
 Important deployment caveat: GitHub Actions `build` workflow passed on commit `40a13f839f86bf8d491683f93f765fb51372dc09`; Cloudflare's `Workers Builds: schcatnew` check for the same commit completed with failure. Its check summary does not expose the underlying reason. Do not claim the Worker is deployed/working until the Cloudflare build issue is diagnosed and the live URL/routes are tested.
+
+## Step 4 — provider integration fixes and deployment blocker
+A provider/client audit found two concrete integration defects and fixed them:
+- Live chart candles were still fetched directly from Yahoo in the browser even though a Worker proxy builder and test already existed. `fetchYahooCandles` now calls `/api/yahoo/chart` with same-origin credentials, so production charts use the Worker and avoid Yahoo CORS restrictions.
+- The diagnostics page still expected health service identity `schcatweb-api`, while the copied Worker correctly identifies itself as `schcatnew-api`. Health checks would therefore incorrectly report the Worker as invalid. Updated the expected identity and all visible diagnostics branding to SchCatNew. Kept the existing browser local-storage key for MarketSmith auth so an existing saved session is not discarded.
+
+Added a root `package.json` that pins Wrangler 4.158.0 and defines `build`, `deploy`, and `preview` scripts. The build script installs/builds the frontend before Wrangler deploys the root Worker. CI now explicitly runs the chart-provider and provider-diagnostics regression suites in addition to the prior checks.
+
+**Cloudflare build configuration still requires a dashboard setting:** Cloudflare Workers Builds runs a separate optional Build command and then the Deploy command (default `npx wrangler deploy`). Its current GitHub integration has been failing on the Worker deployment. Cloudflare's current docs state that Workers Builds settings live in Worker Settings → Build and that Workers Builds does not honor Wrangler Custom Builds configuration. Therefore the Worker project must have Build command `npm run build` (repository root), Deploy command `npx wrangler deploy`, and root directory blank/repository root. This dashboard setting cannot be changed through the available repository tools. After the setting is corrected, a new production build is needed before live health/provider testing can be meaningful.
+
+The current provider diagnostics page can test health plus live Yahoo, MarketSmith finance/symbol/relative-strength, ChartInk and NSE delivery routes. MarketSmith still requires the user's valid current `ms-auth` value, entered locally in that browser. Real provider upstream access has not yet been verified because the Cloudflare Worker build/deployment is not confirmed. Do not describe mocked tests as live provider tests.
 
 ## Latest verified repository state
 - Branch: `main`
