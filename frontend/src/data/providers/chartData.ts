@@ -273,7 +273,7 @@ export function aggregateHourlyToFourHour(
 }
 
 /**
- * Fetch and shape chart candles through the same-origin Worker. The 15m/4H
+ * Fetch and shape chart candles directly from Yahoo Finance in the browser. The 15m/4H
  * views are built from Yahoo 5m/1h candles with the same grouping rules as CRIP4.
  */
 export async function fetchChartData(
@@ -297,7 +297,7 @@ async function fetchYahooCandles(
   timeframe: Exclude<ChartTimeframe, "15m" | "4H">,
   options: ChartRequestOptions
 ): Promise<ChartCandle[]> {
-  const url = buildYahooProxyUrl(symbol, timeframe);
+  const url = buildYahooChartUrl(symbol, timeframe);
   const controller = new AbortController();
   const timeoutMs = options.timeoutMs ?? 15_000;
   const timeoutId = globalThis.setTimeout(
@@ -310,8 +310,8 @@ async function fetchYahooCandles(
     try {
       response = await fetch(url, {
         method: "GET",
-        mode: "same-origin",
-        credentials: "same-origin",
+        mode: "cors",
+        credentials: "omit",
         headers: { Accept: "application/json" },
         signal: controller.signal
       });
@@ -321,8 +321,8 @@ async function fetchYahooCandles(
       throw new ChartDataError(
         timedOut ? "timeout" : "network",
         timedOut
-          ? `SchCatWeb's data Worker did not respond within ${timeoutMs} ms.`
-          : "Could not reach the SchCatWeb data Worker. Check the site/API deployment and network."
+          ? `Yahoo Finance did not respond within ${timeoutMs} ms.`
+          : "Could not read Yahoo Finance from this browser. The provider may block cross-origin requests (CORS); no server or proxy is configured."
       );
     }
 
@@ -338,7 +338,7 @@ async function fetchYahooCandles(
       throw new ChartDataError(
         "http",
         detail
-          ? `Yahoo Finance via SchCatWeb returned HTTP ${response.status}: ${detail}`
+          ? `Yahoo Finance returned HTTP ${response.status}: ${detail}`
           : `Yahoo Finance via SchCatWeb returned HTTP ${response.status}.`,
         response.status
       );
@@ -350,7 +350,7 @@ async function fetchYahooCandles(
     } catch {
       throw new ChartDataError(
         "invalid-response",
-        "The SchCatWeb Worker returned a response that was not valid Yahoo Finance JSON."
+        "Yahoo Finance returned a response that was not valid JSON."
       );
     }
     return parseYahooChartPayload(payload);
