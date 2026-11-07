@@ -35,3 +35,4 @@ jobs:
           npm run test:research
           npm run test:market-pulse
           npm run test:portfolio
+          npm run test:integration
