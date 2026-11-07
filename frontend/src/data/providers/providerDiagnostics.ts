@@ -11,7 +11,7 @@ export type ProviderProbeStatus =
 
 export interface ProviderProbeResult {
   id: string;
-  provider: "SchCatWeb API" | "MarketSmith" | "ChartInk" | "NSE" | "Yahoo Finance";
+  provider: "SchCatNew API" | "MarketSmith" | "ChartInk" | "NSE" | "Yahoo Finance";
   title: string;
   status: ProviderProbeStatus;
   message: string;
@@ -337,7 +337,7 @@ function httpFailure(
     ? "The upstream provider requires authentication or rejected the configured session."
     : response.status === 403
       ? "The upstream provider denied access. Check the provider session, entitlement, and request policy."
-      : `The SchCatWeb Worker returned HTTP ${response.status} while contacting the provider.`;
+      : `The SchCatNew Worker returned HTTP ${response.status} while contacting the provider.`;
 
   const message = dataError === "marketsmith_auth_not_configured"
     ? "No MarketSmith ms-auth value reached the Worker. Enter it in the diagnostics page and save it in this browser."
@@ -404,10 +404,10 @@ function probeMarketSmith(
 ): Promise<ProviderProbeResult> {
   const id = endpoint === "finance" ? "marketsmith-finance" : endpoint === "symbol" ? "marketsmith-symbol" : "marketsmith-relative-strength";
   const title = endpoint === "finance"
-    ? "MarketSmith financeDetails via SchCatWeb Worker"
+    ? "MarketSmith financeDetails via SchCatNew Worker"
     : endpoint === "symbol"
-      ? "MarketSmith symboldetails via SchCatWeb Worker"
-      : "MarketSmith relative-strength history via SchCatWeb Worker";
+      ? "MarketSmith symboldetails via SchCatNew Worker"
+      : "MarketSmith relative-strength history via SchCatNew Worker";
 
   let url: string;
   try {
@@ -497,7 +497,7 @@ async function probeChartInk(): Promise<ProviderProbeResult> {
 }
 
 async function probeNse(): Promise<ProviderProbeResult> {
-  const title = "NSE historical delivery via SchCatWeb Worker";
+  const title = "NSE historical delivery via SchCatNew Worker";
   const { from, to } = recentNseWindow();
   let url: string;
   try {
@@ -576,8 +576,8 @@ async function probeYahooFinance(): Promise<ProviderProbeResult> {
 async function probeWorkerHealth(): Promise<ProviderProbeResult> {
   const id = "schcatnew-api-health";
   const title = "SchCatNew Worker health and route inventory";
-  const attempt = await requestText(id, "SchCatWeb API", title, "/api/health", { headers: { Accept: "application/json" } });
-  return jsonResult(id, "SchCatWeb API", title, attempt, (data) => {
+  const attempt = await requestText(id, "SchCatNew API", title, "/api/health", { headers: { Accept: "application/json" } });
+  return jsonResult(id, "SchCatNew API", title, attempt, (data) => {
     const health = asRecord(data);
     const routes = Array.isArray(health?.routes) ? health.routes.filter((route): route is string => typeof route === "string") : [];
     const required = [
