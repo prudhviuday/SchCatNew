@@ -19,7 +19,7 @@ Last updated: 2026-11-07
 | 3 | Integrate SchCatWeb API gateway into SchCatNew | Complete in repository — Worker, Wrangler config and route tests added; Cloudflare production build status still unverified/failed |
 | 4 | Complete provider integration and verify live upstream behaviour | Complete — user confirmed the SchCatNew Cloudflare site is working; MarketSmith data still requires a valid browser `ms-auth` session |
 | 5 | Port shared Python calculations and utilities | Complete — audited the legacy utility layer, retained existing calculation ports, and added tested shared metric-presentation rules |
-| 6 | Complete Stocks screen parity | Not started |
+| 6 | Complete Stocks screen parity | In progress — completed parity fixes for row double-click chart navigation, legacy EPS header naming, and watchlist Go/Drop toggling; CI verification running |
 | 7 | Complete Chart screen parity | Not started |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | Not started |
 | 9 | Complete Industry Analysis parity | Not started |
@@ -28,6 +28,16 @@ Last updated: 2026-11-07
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
+
+## Step 6 — Stocks screen parity
+
+Compared the web Stocks screen against `Guimain2.py` and `helper.py`. The web implementation already includes the reference-universe load, manual eight-worker MarketSmith refresh, search, sector/industry and numeric filters, AND-combined saved queries, watchlists, sorting, CSV export, row selection/right-panel history, and 1–9/Right Arrow watchlist shortcuts. Completed additional parity fixes:
+- Double-clicking a stock row now opens that stock in the Chart workspace, while a double-click on the Industry action does not hijack the industry navigation.
+- The table and selected-stock panel now label the MarketSmith `epsRank` field as `EPS`, matching the original desktop Stocks table rather than the more modernized `EPS Rank` wording.
+- Watchlist Go now toggles to Drop when the same watchlist is active, and Drop clears the watchlist filter, matching the original desktop toggle behaviour.
+- Added unit coverage for the watchlist Go/Drop transition.
+
+The latest CI run is in progress; the earlier Step 5 full CI run completed successfully. Do not mark Step 6 complete until the latest build and test run passes.
 
 ## Step 5 — shared calculations and utilities
 
