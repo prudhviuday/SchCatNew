@@ -285,7 +285,7 @@ function IndustryAnalysis({
       <section className="industry-provider-notice">
         <strong>Live analysis uses your saved MarketSmith session.</strong>
         <span>
-          Run one selected industry at a time. Each constituent is included only when MarketSmith institutional value and RS, Yahoo weekly close×volume, and NSE delivery/traded data all return successfully. Failed stocks are listed separately; missing provider data is never replaced with zero.
+          Run one industry or the complete universe. The full run processes every non-BSE industry and produces one combined five-series result set. A stock contributes only when all four provider requests succeed; failures are listed separately and missing data is never replaced with zero.
         </span>
         <a href="/?diagnostics=providers">Manage provider session ↗</a>
       </section>
@@ -342,10 +342,17 @@ function IndustryAnalysis({
                   <div className="eyebrow">SELECTED INDUSTRY</div>
                   <h2>{activeIndustry.industry}</h2>
                   <p>{activeIndustry.stockCount} stocks in the imported reference universe</p>
-                  <button type="button" className="screener-button" onClick={() => void runSelectedIndustryLive()} disabled={liveRunning}>
-                    {liveRunning ? `Analyzing ${liveProgress.completed}/${liveProgress.total}…` : "Run live analysis"}
-                  </button>
-                  {liveRunning && <small className="screener-muted">Latest completed: {liveProgress.symbol || "Preparing requests"}</small>}
+                  <div className="industry-run-actions">
+                    <button type="button" className="screener-button" onClick={() => void runSelectedIndustryLive()} disabled={liveRunning || batchRunning}>
+                      {liveRunning ? `Analyzing ${liveProgress.completed}/${liveProgress.total}…` : "Run selected industry"}
+                    </button>
+                    <button type="button" className="screener-button secondary" onClick={() => void runAllIndustries()} disabled={liveRunning || batchRunning || loading || summaries.length === 0}>
+                      {batchRunning ? `Analyzing all ${liveProgress.completed}/${liveProgress.total}…` : "Run all industries"}
+                    </button>
+                  </div>
+                  {(liveRunning || batchRunning) && <small className="screener-muted">
+                    {batchRunning ? `Industry: ${batchIndustry || "Preparing"} · ` : ""}Latest completed: {liveProgress.symbol || "Preparing requests"}
+                  </small>}
                 </div>
                 <div className="industry-overview-metrics">
                   <div><span>Stocks</span><strong>{activeIndustry.stockCount}</strong></div>
