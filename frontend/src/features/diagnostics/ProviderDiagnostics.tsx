@@ -117,10 +117,10 @@ function ProviderDiagnostics() {
     <main className="diagnostics-shell">
       <header className="diagnostics-header">
         <div>
-          <div className="eyebrow">SCHCATWEB / PROVIDER CHECK</div>
+          <div className="eyebrow">SCHCATNEW / PROVIDER CHECK</div>
           <h1>Provider connectivity diagnostics</h1>
           <p className="diagnostics-intro">
-            The page calls SchCatWeb's same-origin Worker API. The Worker contacts Yahoo, MarketSmith, ChartInk and NSE server-side, like the original desktop Node/Python app.
+            The page calls SchCatNew's same-origin Worker API. The Worker contacts Yahoo, MarketSmith, ChartInk and NSE server-side, like the original desktop Node/Python app.
           </p>
         </div>
         <a className="diagnostics-back" href="/">Back to SchCat</a>
@@ -130,11 +130,11 @@ function ProviderDiagnostics() {
         <h2>What this test checks</h2>
         <p>
           Worker health and route inventory, MarketSmith finance/symbol/relative-strength endpoints, the ChartInk CSRF + scan flow, NSE historical delivery data, and Yahoo chart data.
-          The browser only talks to SchCatWeb; provider cookies and upstream requests stay inside the Worker.
+          The browser only talks to SchCatNew; provider cookies and upstream requests stay inside the Worker.
         </p>
         <p>
           MarketSmith needs a current <code>ms-auth</code> value. Enter it in the browser-local field below.
-          It is saved only in this browser and supplied to the SchCatWeb Worker for each MarketSmith request.
+          It is saved only in this browser and supplied to the SchCatNew Worker for each MarketSmith request.
         </p>
         <p>
           Results distinguish the Worker HTTP status from the upstream provider status. A green check now requires the expected JSON fields, not merely HTTP 200.
@@ -241,7 +241,7 @@ function ProviderDiagnostics() {
       </section>
 
       <footer className="diagnostics-footer">
-        The MarketSmith value is kept in this browser's local storage, not in the static site files or Cloudflare settings. It is sent over HTTPS to the SchCatWeb Worker only when MarketSmith is requested. Clearing browser data or using another browser removes the saved setting.
+        The MarketSmith value is kept in this browser's local storage, not in the static site files or Cloudflare settings. It is sent over HTTPS to the SchCatNew Worker only when MarketSmith is requested. Clearing browser data or using another browser removes the saved setting.
       </footer>
     </main>
   );
