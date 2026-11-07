@@ -21,6 +21,9 @@ jobs:
       - name: Build portable static site
         working-directory: frontend
         run: npm run build
+      - name: Verify migrated reference and workbook data
+        working-directory: frontend
+        run: npm run test:reference
       - name: Verify core calculations
         working-directory: frontend
         run: |
