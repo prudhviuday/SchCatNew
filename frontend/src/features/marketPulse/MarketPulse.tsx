@@ -65,7 +65,7 @@ function MarketPulse() {
 
       <div className="pulse-source-note">
         <strong>Live provider data</strong>
-        <span>Uses the original desktop ChartInk widget query and scoring thresholds. Data is fetched directly in this browser; no backend, proxy, cookies or session tokens are stored by SchCatWeb.</span>
+        <span>Uses the exact desktop ChartInk widget query and scoring thresholds. Requests pass through the same-origin Cloudflare Worker, which handles ChartInk's CSRF bootstrap and upstream session for each request. No ChartInk cookies or session tokens are stored in this browser.</span>
       </div>
 
       {error && (
@@ -128,7 +128,7 @@ function MarketPulse() {
         </div>
         <p className="pulse-footnote">Cell colours and inclusive range boundaries are ported from Tabs/MarketPulseTab.py. Blank or out-of-range values remain neutral. The original 5-day and 10-day ratios are rounded to one decimal place.</p>
       </section>
-      <footer className="page-footer">SCHCATWEB <span>·</span> MARKET PULSE <span>·</span> CHARTINK SOURCE</footer>
+      <footer className="page-footer">SCHCATNEW <span>·</span> MARKET PULSE <span>·</span> CHARTINK SOURCE</footer>
     </div>
   );
 }
