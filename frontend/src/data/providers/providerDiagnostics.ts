@@ -283,8 +283,8 @@ async function requestText(
         title,
         status: isTimeout ? "timeout" : "browser-blocked",
         message: isTimeout
-          ? "The SchCatWeb Worker API did not respond within 15 seconds."
-          : "The browser could not reach SchCatWeb's same-origin Worker API. Check the site deployment, /api routes, and network.",
+          ? "The SchCatNew Worker API did not respond within 15 seconds."
+          : "The browser could not reach SchCatNew's same-origin Worker API. Check the site deployment, /api routes, and network.",
         elapsedMs
       }
     };
@@ -466,7 +466,7 @@ function probeMarketSmith(
 }
 
 async function probeChartInk(): Promise<ProviderProbeResult> {
-  const title = "ChartInk CSRF session + scan via SchCatWeb Worker";
+  const title = "ChartInk CSRF session + scan via SchCatNew Worker";
   const attempt = await requestText(
     "chartink-worker-scan",
     "ChartInk",
@@ -535,7 +535,7 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 }
 
 async function probeYahooFinance(): Promise<ProviderProbeResult> {
-  const title = "Yahoo Finance chart via SchCatWeb Worker (RELIANCE, 5-day sample)";
+  const title = "Yahoo Finance chart via SchCatNew Worker (RELIANCE, 5-day sample)";
   const url = buildYahooProxyUrl("RELIANCE", "1D", { range: "5d" });
   const attempt = await requestText(
     "yahoo-chart",
@@ -574,8 +574,8 @@ async function probeYahooFinance(): Promise<ProviderProbeResult> {
 }
 
 async function probeWorkerHealth(): Promise<ProviderProbeResult> {
-  const id = "schcatweb-api-health";
-  const title = "SchCatWeb Worker health and route inventory";
+  const id = "schcatnew-api-health";
+  const title = "SchCatNew Worker health and route inventory";
   const attempt = await requestText(id, "SchCatWeb API", title, "/api/health", { headers: { Accept: "application/json" } });
   return jsonResult(id, "SchCatWeb API", title, attempt, (data) => {
     const health = asRecord(data);
@@ -585,7 +585,7 @@ async function probeWorkerHealth(): Promise<ProviderProbeResult> {
       "GET /api/marketsmith/relative-strength", "POST /api/chartink/scan", "GET /api/nse/delivery"
     ];
     const missing = required.filter((route) => !routes.includes(route));
-    if (health?.ok !== true || health?.service !== "schcatweb-api") return invalidSummary("Health response is missing the expected SchCatWeb API service identity.");
+    if (health?.ok !== true || health?.service !== "schcatnew-api") return invalidSummary("Health response is missing the expected SchCatNew API service identity.");
     if (missing.length) return invalidSummary(`Worker is online, but its route inventory is missing: ${missing.join(", ")}.`);
     const version = typeof health.version === "string" ? health.version : "unknown";
     return validSummary(`Worker API v${version} is online and lists all ${required.length} required provider routes. MarketSmith Worker secret: ${health.marketSmithAuthConfigured === true ? "configured" : "not configured (browser-local session remains supported)"}.`);
