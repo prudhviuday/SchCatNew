@@ -20,7 +20,7 @@ Last updated: 2026-11-07
 | 4 | Complete provider integration and verify live upstream behaviour | Complete — user confirmed the SchCatNew Cloudflare site is working; MarketSmith data still requires a valid browser `ms-auth` session |
 | 5 | Port shared Python calculations and utilities | Complete — audited the legacy utility layer, retained existing calculation ports, and added tested shared metric-presentation rules |
 | 6 | Complete Stocks screen parity | Complete — parity fixes committed and full CI passed on code commit `60e8725ccba8dfc7e6094c14f58700d6f5c2d201` (run `42386634477`) |
-| 7 | Complete Chart screen parity | Not started |
+| 7 | Complete Chart screen parity | In progress — four legacy timeframe panes and Worker data are present; added tested older/newer chart-window navigation and retained SMA/EMA alignment |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | Not started |
 | 9 | Complete Industry Analysis parity | Not started |
 | 10 | Complete Research / Querys parity | Not started |
@@ -28,6 +28,16 @@ Last updated: 2026-11-07
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
+
+## Step 7 — Chart screen parity (in progress)
+
+Compared the original `Tabs/ChartTab.py` and `chartengine.py` with `StockWorkspace.tsx` and `chartData.ts`. The original screen loads Weekly, Daily, Hourly and 5-minute OHLCV panes. SchCatNew already loads those four intervals through the same-origin Yahoo Worker, renders candlesticks and volume, calculates SMA 50 / EMA 50 / EMA 200 / RSI 21 on the complete history, and exposes 100/200/500-candle windows.
+
+Step 7 adds navigation through historical chart windows: **Older** moves back by one selected window and **Newer** returns toward the latest candles. Indicator values remain aligned to their original candles because calculations still run against the complete sorted history before the visible window is sliced. Changing the symbol or window size resets the offset to the latest view. Added tests for latest/older/empty windows and invalid offsets.
+
+The source desktop `ChartTab.py` itself only specifies the four panes, candlesticks, volume and mouse pan/zoom; it does not define extra drawing tools. This web navigation is a deterministic keyboard/touch-friendly equivalent for browsing history; freehand drawing tools are not claimed as ported.
+
+Verification pending: full GitHub Actions build/test workflow after these commits. Live Yahoo access still depends on the deployed Worker and provider availability; the automated chart tests use fixtures and do not prove live upstream availability.
 
 ## Step 6 — Stocks screen parity
 
