@@ -35,6 +35,7 @@ jobs:
           npm run test:screener
           npm run test:workspace
           npm run test:industry
+          npm run test:multi-stock-analysis
           npm run test:research
           npm run test:market-pulse
           npm run test:portfolio
