@@ -137,7 +137,7 @@ function IndustryAnalysis({
   const [batchRunning, setBatchRunning] = useState(false);
   const [liveProgress, setLiveProgress] = useState({ completed: 0, total: 0, symbol: "" });
   const [liveError, setLiveError] = useState("");
-  const [liveFailures, setLiveFailures] = useState<Array<{ symbol: string; message: string }>>([]);
+  const [liveFailures, setLiveFailures] = useState<Array<{ symbol: string; message: string; industry?: string }>>([]);
   const [liveResultIndustries, setLiveResultIndustries] = useState<string[]>([]);
   const [batchIndustry, setBatchIndustry] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
