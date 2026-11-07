@@ -113,7 +113,7 @@ test("provider diagnostics call only same-origin Worker APIs", async () => {
     }
     if (url === "/api/health") {
       return new Response(JSON.stringify({
-        ok: true, service: "schcatweb-api", version: "2",
+        ok: true, service: "schcatnew-api", version: "2",
         routes: ["GET /api/yahoo/chart","GET /api/marketsmith/finance","GET /api/marketsmith/symbol","GET /api/marketsmith/relative-strength","POST /api/chartink/scan","GET /api/nse/delivery"],
         marketSmithAuthConfigured: false
       }), { status: 200 });
@@ -143,7 +143,7 @@ test("provider diagnostics call only same-origin Worker APIs", async () => {
     });
     assert.equal(results.length, 7);
     assert.equal(results.every((item) => item.status === "success"), true);
-    assert.equal(results.find((item) => item.id === "schcatweb-api-health")?.provider, "SchCatWeb API");
+    assert.equal(results.find((item) => item.id === "schcatnew-api-health")?.provider, "SchCatNew API");
     assert.equal(results.find((item) => item.id === "marketsmith-relative-strength")?.status, "success");
     assert.equal(calls.every((call) => call.url.startsWith("/api/")), true);
     assert.equal(calls.some((call) => call.url.startsWith("https://")), false);
@@ -162,13 +162,13 @@ test("provider diagnostics call only same-origin Worker APIs", async () => {
 test("MarketSmith Worker URL builders validate inputs and never include auth values", () => {
   const finance = new URL(
     buildMarketSmithFinanceProxyUrl("3159563"),
-    "https://schcatweb.test"
+    "https://schcatnew.test"
   );
   assert.equal(finance.pathname, "/api/marketsmith/finance");
   assert.equal(finance.searchParams.get("stockId"), "3159563");
   const symbol = new URL(
     buildMarketSmithSymbolProxyUrl("3159563", "rvnl"),
-    "https://schcatweb.test"
+    "https://schcatnew.test"
   );
   assert.equal(symbol.pathname, "/api/marketsmith/symbol");
   assert.equal(symbol.searchParams.get("symbol"), "RVNL");
@@ -179,7 +179,7 @@ test("MarketSmith Worker URL builders validate inputs and never include auth val
 test("NSE Worker URL builder uses its same-origin route", () => {
   const url = new URL(
     buildNseDeliveryProxyUrl("reliance", "01-11-2026", "06-11-2026"),
-    "https://schcatweb.test"
+    "https://schcatnew.test"
   );
   assert.equal(url.pathname, "/api/nse/delivery");
   assert.equal(url.searchParams.get("symbol"), "RELIANCE");
@@ -193,7 +193,7 @@ test("missing browser-saved MarketSmith value is reported before sending request
   globalThis.fetch = async (input) => {
     const url = String(input);
     if (url === "/api/health") return new Response(JSON.stringify({
-      ok: true, service: "schcatweb-api", version: "2",
+      ok: true, service: "schcatnew-api", version: "2",
       routes: ["GET /api/yahoo/chart","GET /api/marketsmith/finance","GET /api/marketsmith/symbol","GET /api/marketsmith/relative-strength","POST /api/chartink/scan","GET /api/nse/delivery"]
     }), { status: 200 });
     if (url === "/api/chartink/scan") {
@@ -242,7 +242,7 @@ test("provider diagnostics do not count HTTP 200 with invalid provider payloads 
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
     const url = String(input);
-    if (url === "/api/health") return new Response(JSON.stringify({ ok: true, service: "schcatweb-api", version: "2", routes: [] }), { status: 200 });
+    if (url === "/api/health") return new Response(JSON.stringify({ ok: true, service: "schcatnew-api", version: "2", routes: [] }), { status: 200 });
     if (url.startsWith("/api/marketsmith/")) return new Response(JSON.stringify({ response: {} }), { status: 200 });
     if (url === "/api/chartink/scan") return new Response(JSON.stringify({ rows: [] }), { status: 200 });
     if (url.startsWith("/api/nse/delivery")) return new Response(JSON.stringify({ rows: [] }), { status: 200 });
@@ -251,7 +251,7 @@ test("provider diagnostics do not count HTTP 200 with invalid provider payloads 
   };
   try {
     const results = await runProviderDiagnostics({ marketSmithStockId: "3159563", marketSmithSymbol: "RVNL", marketSmithAuth: "sample auth" });
-    assert.equal(results.find((item) => item.id === "schcatweb-api-health")?.status, "invalid-response");
+    assert.equal(results.find((item) => item.id === "schcatnew-api-health")?.status, "invalid-response");
     assert.equal(results.find((item) => item.id === "chartink-worker-scan")?.status, "invalid-response");
     assert.equal(results.find((item) => item.id === "nse-delivery")?.status, "invalid-response");
     assert.equal(results.find((item) => item.id === "yahoo-chart")?.status, "invalid-response");
@@ -265,7 +265,7 @@ test("upstream HTTP status is shown separately from the Worker HTTP status", asy
     if (url.startsWith("/api/marketsmith/finance")) return new Response(JSON.stringify({ error: "provider_denied" }), { status: 403, headers: { "x-schcat-upstream-status": "403" } });
     if (url.startsWith("/api/marketsmith/")) return new Response(JSON.stringify({ response: {} }), { status: 200 });
     if (url === "/api/health") return new Response(JSON.stringify({
-      ok: true, service: "schcatweb-api", version: "2",
+      ok: true, service: "schcatnew-api", version: "2",
       routes: ["GET /api/yahoo/chart","GET /api/marketsmith/finance","GET /api/marketsmith/symbol","GET /api/marketsmith/relative-strength","POST /api/chartink/scan","GET /api/nse/delivery"]
     }), { status: 200 });
     if (url === "/api/chartink/scan") return new Response(JSON.stringify({ data: [] }), { status: 200 });
