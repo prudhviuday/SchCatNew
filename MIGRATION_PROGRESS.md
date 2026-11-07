@@ -17,8 +17,8 @@ Last updated: 2026-11-07
 | 1 | Audit original Python app against SchCatNew | Complete — source audit only; no files modified |
 | 2 | Migrate original reference workbooks, saved queries, watchlists, portfolio and Industry Analysis history | Complete — data archived and browser JSON conversion added |
 | 3 | Integrate SchCatWeb API gateway into SchCatNew | Complete in repository — Worker, Wrangler config and route tests added; Cloudflare production build status still unverified/failed |
-| 4 | Complete provider integration and verify live upstream behaviour | In progress — fixed frontend routing/diagnostics; live provider check blocked until Cloudflare build settings are corrected |
-| 5 | Port shared Python calculations and utilities | Not started |
+| 4 | Complete provider integration and verify live upstream behaviour | Complete — user confirmed the SchCatNew Cloudflare site is working; MarketSmith data still requires a valid browser `ms-auth` session |
+| 5 | Port shared Python calculations and utilities | Complete — audited the legacy utility layer, retained existing calculation ports, and added tested shared metric-presentation rules |
 | 6 | Complete Stocks screen parity | Not started |
 | 7 | Complete Chart screen parity | Not started |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | Not started |
@@ -28,6 +28,12 @@ Last updated: 2026-11-07
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
+
+## Step 5 — shared calculations and utilities
+
+Audited the original `util.py`, `helper.py`, `CRIP4/indicators.js`, and right-panel metric presentation logic against the existing TypeScript domain modules. Confirmed the following legacy calculations/utilities are already ported and covered by tests: normalization, EPS/sales FScore, quarterly growth clamping, expansion percentage, institutional cost scaling, market-cap-weighted relative strength, SMA/EMA/RSI/ULTM/ATP, screener query intersection/filtering/sorting, watchlist shortcuts, industry drilldown, PEG parsing, and NSE delivery rolling averages.
+
+Added `frontend/src/domain/analysis/stockMetricPresentation.ts` to centralize the original `Tabs/rightpanel.py` metric colour thresholds. It returns semantic bands rather than hard-coded UI colours: RS/EPS 70/80; PE strictly between 0 and 25; ROE >=15; EPSGrowth >=25; MasterScore/AccDis/CashFlow/Stability 50/70. Unhandled fields such as ROCE, PEG, PB and NikScore remain neutral, matching the original right-panel method. Added boundary/invalid-input tests and wired them into the TypeScript test build and GitHub Actions.
 
 ## Step 1 — audit findings
 The desktop app's primary screens are Stocks, Chart, Industry Stocks, Industry Analysis, Querys/Research, Market and Portfolio. The web repository already contains implementations for all seven, but several are partial and still need comparison against the original Python workflows. The original chart panel has weekly, daily, hourly and 5-minute charts; the Industry Analysis uses institutional value, close-volume, NSE delivery and market-cap-weighted relative strength aggregation. Important desktop sources include `Guimain2.py`, `helper.py`, `util.py`, `chartengine.py`, `Tabs/AnalysisTab.py`, `Tabs/ChartTab.py`, `Tabs/IndustryAnalysisTab.py`, `Tabs/MarketPulseTab.py`, `Tabs/ResearchTab.py` and `Tabs/portfolioTab.py`.
@@ -84,4 +90,4 @@ CI now installs the root Worker toolchain, runs the root `npm run build`, execut
 - Cloudflare build: `https://dash.cloudflare.com/25cbd8f5e7df317d5d1f2bb3a94452f1/workers/services/view/schcatnew/production/builds/a3ece1a6-bf11-4bd3-b02b-3adc7b6e091b` — failed; exact reason not available in GitHub check summary. Cloudflare dashboard build settings need checking.
 
 ## Next action
-Continue with **Step 4/14**: compare every frontend provider request with the Worker routes, test upstream provider reachability/authentication, resolve the Cloudflare Worker build failure if possible, and report any provider-specific restrictions. Keep the distinction between mocked tests and real upstream verification explicit.
+Continue with **Step 6/14**: complete Stocks screen parity against the original `Guimain2.py` workflow, including live refresh, sorting, filters, query/watchlist combinations, row selection and right-panel integration.
