@@ -12,6 +12,17 @@ import {
   type LegacyIndustryResult
 } from "./industryAnalysis";
 
+const INDUSTRY_RESULTS_STORAGE_KEY = "schcatnew.industry-analysis.results.v1";
+
+function readBrowserSavedResults(): LegacyIndustryResult[] {
+  try {
+    const stored = window.localStorage.getItem(INDUSTRY_RESULTS_STORAGE_KEY);
+    return stored ? parseLegacyIndustryResults(JSON.parse(stored) as unknown) : [];
+  } catch {
+    return [];
+  }
+}
+
 function numberText(value: number): string {
   return new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value);
 }
@@ -111,9 +122,9 @@ function IndustryAnalysis({
   const [loadError, setLoadError] = useState("");
   const [search, setSearch] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState("");
-  const [savedResults, setSavedResults] = useState<LegacyIndustryResult[]>([]);
+  const [savedResults, setSavedResults] = useState<LegacyIndustryResult[]>(() => readBrowserSavedResults());
   const [importError, setImportError] = useState("");
-  const [importLabel, setImportLabel] = useState("");
+  const [importLabel, setImportLabel] = useState(() => window.localStorage.getItem(INDUSTRY_RESULTS_STORAGE_KEY) ? "Restored from this browser" : "");
   const [liveRunning, setLiveRunning] = useState(false);
   const [batchRunning, setBatchRunning] = useState(false);
   const [liveProgress, setLiveProgress] = useState({ completed: 0, total: 0, symbol: "" });
@@ -140,6 +151,18 @@ function IndustryAnalysis({
       });
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (savedResults.length === 0) return;
+    try {
+      window.localStorage.setItem(
+        INDUSTRY_RESULTS_STORAGE_KEY,
+        JSON.stringify(serializeLegacyIndustryResults(savedResults))
+      );
+    } catch {
+      setImportError("Could not save Industry Analysis results in this browser. Use Export JSON to keep a copy.");
+    }
+  }, [savedResults]);
 
   const visibleIndustries = useMemo(
     () => filterIndustrySummaries(summaries, search),
