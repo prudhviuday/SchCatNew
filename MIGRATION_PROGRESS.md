@@ -100,4 +100,4 @@ CI now installs the root Worker toolchain, runs the root `npm run build`, execut
 - Cloudflare build: `https://dash.cloudflare.com/25cbd8f5e7df317d5d1f2bb3a94452f1/workers/services/view/schcatnew/production/builds/a3ece1a6-bf11-4bd3-b02b-3adc7b6e091b` — failed; exact reason not available in GitHub check summary. Cloudflare dashboard build settings need checking.
 
 ## Next action
-Continue with **Step 6/14**: complete Stocks screen parity against the original `Guimain2.py` workflow, including live refresh, sorting, filters, query/watchlist combinations, row selection and right-panel integration.
+Continue with **Step 7/14**: complete Chart screen parity against the original `Tabs/ChartTab.py` and chart engine, including interval panes, overlays, drawing/navigation behaviour, and chart data refresh.
