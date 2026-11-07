@@ -52,10 +52,14 @@ export function formatChartTime(time: number, timeframe: ChartTimeframe): string
 export function prepareChartView(
   candles: readonly ChartCandle[],
   timeframe: ChartTimeframe,
-  maxPoints = 200
+  maxPoints = 200,
+  endOffset = 0
 ): ChartView {
   if (!Number.isInteger(maxPoints) || maxPoints <= 0) {
     throw new RangeError("Chart point limit must be a positive integer");
+  }
+  if (!Number.isInteger(endOffset) || endOffset < 0) {
+    throw new RangeError("Chart window offset must be a non-negative integer");
   }
 
   const ordered = [...candles].sort((a, b) => a.time - b.time);
@@ -76,9 +80,10 @@ export function prepareChartView(
   const ema50 = alignIndicator(calculateEma(closes, 50), ordered.length, 50);
   const ema200 = alignIndicator(calculateEma(closes, 200), ordered.length, 200);
   const rsi = calculateRsi(closes, 21);
-  const startIndex = Math.max(0, ordered.length - maxPoints);
+  const endIndex = Math.max(0, ordered.length - endOffset);
+  const startIndex = Math.max(0, endIndex - maxPoints);
 
-  const points = ordered.slice(startIndex).map((candle, visibleIndex) => {
+  const points = ordered.slice(startIndex, endIndex).map((candle, visibleIndex) => {
     const originalIndex = startIndex + visibleIndex;
     return {
       ...candle,
