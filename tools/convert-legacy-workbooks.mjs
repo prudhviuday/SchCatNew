@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import xlsx from "xlsx";
+import readExcelFile from "read-excel-file/node";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
@@ -16,18 +16,12 @@ function safeText(value) {
   return String(value).trim();
 }
 
-function readWorkbook(filename) {
+async function readWorkbook(filename) {
   const fullPath = path.join(sourceDir, filename);
   if (!fs.existsSync(fullPath)) throw new Error("Missing archived source workbook: " + fullPath);
-  const workbook = xlsx.readFile(fullPath, { cellDates: false, raw: true });
-  const sheets = {};
-  for (const name of workbook.SheetNames) {
-    const rows = xlsx.utils.sheet_to_json(workbook.Sheets[name], {
-      header: 1, raw: true, defval: null, blankrows: false
-    }).filter((row) => row.some((value) => value !== null && value !== ""));
-    sheets[name] = rows;
-  }
-  return { workbook, sheets };
+  const sheetEntries = await readExcelFile(fullPath);
+  const sheets = Object.fromEntries(sheetEntries.map((entry) => [entry.sheet, entry.data]));
+  return { sheetNames: sheetEntries.map((entry) => entry.sheet), sheets };
 }
 
 function normalizedHeader(value) {
@@ -146,8 +140,8 @@ function exportPerformance(rows) {
 }
 
 fs.mkdirSync(outputDir, { recursive: true });
-const queryBook = readWorkbook("ChartInkQs.xlsx");
-const querySheetName = queryBook.workbook.SheetNames.find((name) => name.trim().toUpperCase() === "QUERIES");
+const queryBook = await readWorkbook("ChartInkQs.xlsx");
+const querySheetName = queryBook.sheetNames.find((name) => name.trim().toUpperCase() === "QUERIES");
 const watchlistSheetName = queryBook.workbook.SheetNames.find((name) => name.trim().toUpperCase() === "WATCHLIST");
 const portfolioSheetName = queryBook.workbook.SheetNames.find((name) => name.trim().toUpperCase() === "PORTFOLIO");
 if (!querySheetName || !watchlistSheetName || !portfolioSheetName) {
@@ -157,8 +151,8 @@ const queryData = exportQueries(queryBook.sheets[querySheetName]);
 const watchlistData = exportWatchlists(queryBook.sheets[watchlistSheetName]);
 const portfolioData = exportPortfolio(queryBook.sheets[portfolioSheetName]);
 
-const performanceBook = readWorkbook("Book1.xlsx");
-const performanceSheetName = performanceBook.workbook.SheetNames[0];
+const performanceBook = await readWorkbook("Book1.xlsx");
+const performanceSheetName = performanceBook.sheetNames[0];
 const performanceData = exportPerformance(performanceBook.sheets[performanceSheetName] ?? []);
 
 const legacyWorkbookData = {
@@ -185,7 +179,7 @@ const legacyWorkbookData = {
     queries: queryData.queries.map(({ name, code }) => ({ name, code }))
   },
   workbookMetadata: {
-    chartInkSheets: queryBook.workbook.SheetNames.map((name) => ({
+    chartInkSheets: queryBook.sheetNames.map((name) => ({
       name, rowCount: queryBook.sheets[name].length,
       headers: (queryBook.sheets[name][0] ?? []).map(safeText)
     })),
