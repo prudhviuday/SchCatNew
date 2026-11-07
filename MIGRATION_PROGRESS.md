@@ -24,10 +24,32 @@ Last updated: 2026-11-07
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
 | 9 | Complete Industry Analysis parity | Complete — full-universe batch run, exact legacy aggregations, browser persistence and combined JSON export; CI passed (run `42389197840`) |
 | 10 | Complete Research / Querys parity | Complete — migrated saved queries and performance symbols auto-load; live ChartInk history/evaluation retained; CI passed (run `42390084818`) |
-| 11 | Complete Market Pulse parity | Not started |
+| 11 | Complete Market Pulse parity | In progress — verified exact 4,478-character ChartInk query match; corrected Worker-flow documentation/branding, neutral blank handling and added request-contract tests; CI pending |
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
+
+## Step 11 — Market Pulse (in progress)
+
+Compared the original `Tabs/MarketPulseTab.py` and `chartink.py::chartinkDashboard` against `MarketPulse.tsx`, `marketPulse.ts`, the Worker ChartInk widget route, and Market Pulse tests.
+
+Verified parity already present:
+- The TypeScript `MARKET_PULSE_QUERY` is an exact character-for-character match for the original Python `querybig` (4,478 characters after trimming surrounding whitespace).
+- The original 13 columns and newest-first date ordering are retained.
+- The six-session widget request uses `use_live=1`, `limit=6`, and `size=375`.
+- All 12 metric groups are mapped in the original order; 5-day and 10-day ratios are rounded to one decimal.
+- The original inclusive colour rule ordering and luminance-based text contrast are retained, including intentional neutral gaps.
+- Manual Refresh and optional 60-second Auto-refresh match the desktop's default refresh interval.
+
+Fixes and tests added in this step:
+- Corrected the UI explanation: Market Pulse does not fetch ChartInk directly from the browser. It calls the same-origin Cloudflare Worker, which bootstraps ChartInk CSRF and forwards the widget request. The browser does not persist ChartInk cookies/session tokens.
+- Updated remaining SchCatWeb labels and Worker error text to SchCatNew.
+- Blank/null metric values now remain neutral instead of JavaScript coercing them to zero and potentially assigning a misleading colour.
+- Added tests for the exact Worker request contract (same-origin POST, widget mode, exact query, live flag, six sessions and size 375), Worker error propagation, and blank-value colour handling.
+
+The Worker route and upstream behaviour are covered by mocked tests; this does not prove ChartInk is currently reachable from the deployed Cloudflare Worker. CI is pending for the latest changes.
+
+Browser test after deployment: open Market Pulse and confirm the 13-column history loads newest-first; verify ratios show one decimal, cell colours include neutral gaps, manually Refresh, enable Auto-refresh and wait one minute, then disable it. If ChartInk is unavailable, the page should show the actual Worker/provider error rather than sample data.
 
 ## Step 10 — Research / Querys (in progress)
 
