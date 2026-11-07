@@ -1,5 +1,5 @@
 /**
- * Chart data is fetched through the same-origin SchCatWeb Worker. The original
+ * Chart data is fetched through the same-origin SchCatNew Worker. The original
  * CRIP4 desktop app used Node's got() for Yahoo Finance; browser fetches cannot
  * reproduce that flow because Yahoo does not grant the deployed site CORS
  * access. The Worker performs the provider request and returns the JSON.
@@ -86,7 +86,7 @@ function normalizeYahooSymbol(symbol: string): string {
 }
 
 /**
- * Build Yahoo Finance's public chart URL for direct browser requests.
+ * Build Yahoo Finance's upstream chart URL for diagnostics and reference.
  */
 export function buildYahooChartUrl(
   symbol: string,
@@ -273,7 +273,7 @@ export function aggregateHourlyToFourHour(
 }
 
 /**
- * Fetch and shape chart candles directly from Yahoo Finance in the browser. The 15m/4H
+ * Fetch and shape chart candles through the same-origin Worker. The 15m/4H
  * views are built from Yahoo 5m/1h candles with the same grouping rules as CRIP4.
  */
 export async function fetchChartData(
@@ -297,7 +297,7 @@ async function fetchYahooCandles(
   timeframe: Exclude<ChartTimeframe, "15m" | "4H">,
   options: ChartRequestOptions
 ): Promise<ChartCandle[]> {
-  const url = buildYahooChartUrl(symbol, timeframe);
+  const url = buildYahooProxyUrl(symbol, timeframe);
   const controller = new AbortController();
   const timeoutMs = options.timeoutMs ?? 15_000;
   const timeoutId = globalThis.setTimeout(
@@ -310,8 +310,8 @@ async function fetchYahooCandles(
     try {
       response = await fetch(url, {
         method: "GET",
-        mode: "cors",
-        credentials: "omit",
+        mode: "same-origin",
+        credentials: "same-origin",
         headers: { Accept: "application/json" },
         signal: controller.signal
       });
@@ -322,7 +322,7 @@ async function fetchYahooCandles(
         timedOut ? "timeout" : "network",
         timedOut
           ? `Yahoo Finance did not respond within ${timeoutMs} ms.`
-          : "Could not read Yahoo Finance from this browser. The provider may block cross-origin requests (CORS); no server or proxy is configured."
+          : "Could not reach the SchCatNew Worker API. Check the site deployment, /api routes, and network."
       );
     }
 
@@ -338,8 +338,8 @@ async function fetchYahooCandles(
       throw new ChartDataError(
         "http",
         detail
-          ? `Yahoo Finance returned HTTP ${response.status}: ${detail}`
-          : `Yahoo Finance via SchCatWeb returned HTTP ${response.status}.`,
+          ? `Yahoo Finance via SchCatNew returned HTTP ${response.status}: ${detail}`
+          : `Yahoo Finance via SchCatNew returned HTTP ${response.status}.`,
         response.status
       );
     }
