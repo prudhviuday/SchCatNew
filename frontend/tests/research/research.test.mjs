@@ -153,3 +153,38 @@ test("query rows fall back from blank QueryName/QueryCode cells to Name/Query al
     [{ name: "High Growth", code: "close > 100" }]
   );
 });
+
+
+test("legacy workbook defaults load saved ChartInk queries and performance symbols", async () => {
+  const { parseLegacyResearchDefaults } = await import("../../.test-dist/features/research/research.js");
+  const parsed = parseLegacyResearchDefaults({
+    research: {
+      queries: [
+        { name: "Growth Leaders", code: "close > 100 and sales > 25" },
+        { name: "VCP", code: "close > sma(50)" }
+      ],
+      performanceSymbols: ["tcs", "INFY", "TCS", ""]
+    }
+  });
+  assert.deepEqual(parsed, {
+    queries: [
+      { name: "Growth Leaders", code: "close > 100 and sales > 25" },
+      { name: "VCP", code: "close > sma(50)" }
+    ],
+    performanceSymbols: ["TCS", "INFY"]
+  });
+});
+
+test("legacy workbook defaults reject malformed or duplicate saved queries", async () => {
+  const { parseLegacyResearchDefaults } = await import("../../.test-dist/features/research/research.js");
+  assert.throws(() => parseLegacyResearchDefaults({}), /research section/);
+  assert.throws(() => parseLegacyResearchDefaults({
+    research: { queries: [{ name: "A", code: "" }], performanceSymbols: [] }
+  }), /missing its name or code/);
+  assert.throws(() => parseLegacyResearchDefaults({
+    research: {
+      queries: [{ name: "A", code: "x" }, { name: "a", code: "y" }],
+      performanceSymbols: []
+    }
+  }), /Duplicate/);
+});
