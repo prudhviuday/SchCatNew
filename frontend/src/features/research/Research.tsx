@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchChartInkHistory } from "../../data/providers/chartInkHistory";
 import {
   createHistoricalMatchesTemplate,
   evaluateResearch,
   parseHistoricalMatchesJson,
+  parseLegacyResearchDefaults,
   parsePerformanceCsv,
   parseQueriesCsv,
   serializeResearchResultsCsv,
@@ -76,6 +77,7 @@ function Research() {
   const [history, setHistory] = useState<ResearchMatchSet[]>([]);
   const [results, setResults] = useState<ResearchResult[]>([]);
   const [performanceFile, setPerformanceFile] = useState("");
+  const [legacyDefaultsStatus, setLegacyDefaultsStatus] = useState("Loading migrated workbook defaults…");
   const [queryFile, setQueryFile] = useState("");
   const [historyFile, setHistoryFile] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -87,6 +89,31 @@ function Research() {
   const performanceInput = useRef<HTMLInputElement>(null);
   const queryInput = useRef<HTMLInputElement>(null);
   const historyInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/data/legacyWorkbookData.json")
+      .then((response) => {
+        if (!response.ok) throw new Error(`Legacy workbook data request failed (${response.status})`);
+        return response.json() as Promise<unknown>;
+      })
+      .then((payload) => {
+        const defaults = parseLegacyResearchDefaults(payload);
+        if (cancelled) return;
+        setQueries((current) => current.length > 0 ? current : defaults.queries);
+        setPerformanceSymbols((current) => current.length > 0 ? current : defaults.performanceSymbols);
+        setQueryFile((current) => current || "Migrated ChartInkQs.xlsx");
+        setPerformanceFile((current) => current || "Migrated Book1.xlsx");
+        setLegacyDefaultsStatus(`Loaded ${defaults.queries.length} saved queries and ${defaults.performanceSymbols.length} performance symbols from the migrated workbooks.`);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setLegacyDefaultsStatus(error instanceof Error
+          ? `Migrated workbook defaults unavailable: ${error.message}. You can still import CSV files.`
+          : "Migrated workbook defaults unavailable. You can still import CSV files.");
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const historyByQuery = useMemo(
     () => new Map(history.map((item) => [item.queryName, item.symbols])),
@@ -225,7 +252,7 @@ function Research() {
         </div>
       </div>
 
-      <section className="research-provider-notice">
+      <div className="research-run-notice" role="status">{legacyDefaultsStatus}</div>\n\n      <section className="research-provider-notice">
         <strong>Historical ChartInk backtests are connected.</strong>
         <span>
           Run the saved query clauses through ChartInk's backtest endpoint using the Cloudflare Worker. The app collects unique symbols across all returned dates, matching the desktop workflow. Queries run sequentially to avoid flooding the provider; failed queries are shown separately.
@@ -368,7 +395,7 @@ function Research() {
         <p>Excel files should be saved as CSV before import. The original workbook with personal Watchlist and Portfolio sheets is not uploaded or published by this feature.</p>
       </section>
 
-      <footer className="page-footer">SCHCATWEB <span>·</span> RESEARCH <span>·</span> STEP 34</footer>
+      <footer className="page-footer">SCHCATNEW <span>·</span> RESEARCH</footer>
     </div>
   );
 }
