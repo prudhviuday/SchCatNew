@@ -62,3 +62,46 @@ test("cell text contrast follows the desktop luminance threshold", () => {
   assert.equal(getMarketPulseTextColor("#339966"), "#FFFFFF");
   assert.equal(getMarketPulseTextColor("invalid"), "#000000");
 });
+
+
+test("blank and missing metric values remain neutral instead of being treated as zero", () => {
+  assert.equal(getMarketPulseCellColor("4% bull", null), "#FFFFFF");
+  assert.equal(getMarketPulseCellColor("4% bull", undefined), "#FFFFFF");
+  assert.equal(getMarketPulseCellColor("4% bull", ""), "#FFFFFF");
+  assert.equal(getMarketPulseCellColor("4% bull", "   "), "#FFFFFF");
+});
+
+test("Market Pulse fetch uses the same-origin Worker widget route and desktop parameters", async () => {
+  let requestedUrl = "";
+  let requestOptions;
+  const result = await fetchMarketPulse(undefined, async (url, options) => {
+    requestedUrl = String(url);
+    requestOptions = options;
+    return new Response(JSON.stringify(fixture()), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  });
+  assert.equal(requestedUrl, "/api/chartink/scan");
+  assert.equal(requestOptions.method, "POST");
+  assert.equal(requestOptions.mode, "same-origin");
+  assert.equal(requestOptions.credentials, "same-origin");
+  const body = JSON.parse(requestOptions.body);
+  assert.equal(body.mode, "widget");
+  assert.equal(body.query, MARKET_PULSE_QUERY);
+  assert.equal(body.use_live, true);
+  assert.equal(body.limit, 6);
+  assert.equal(body.size, 375);
+  assert.equal(result.rows.length, 2);
+  assert.ok(Number.isFinite(Date.parse(result.fetchedAt)));
+});
+
+test("Market Pulse fetch surfaces Worker HTTP errors without substituting sample data", async () => {
+  await assert.rejects(
+    fetchMarketPulse(undefined, async () => new Response(
+      JSON.stringify({ error: "chartink_csrf_token_missing", message: "ChartInk CSRF unavailable" }),
+      { status: 502, headers: { "content-type": "application/json" } }
+    )),
+    /ChartInk CSRF unavailable/
+  );
+});
