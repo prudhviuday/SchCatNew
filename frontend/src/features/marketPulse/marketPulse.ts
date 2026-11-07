@@ -61,6 +61,7 @@ const RULES: Partial<Record<MarketPulseColumn, Rule[]>> = {
 };
 
 export function getMarketPulseCellColor(column: MarketPulseColumn, value: unknown): string {
+  if (value === null || value === undefined || (typeof value === "string" && value.trim() === "")) return "#FFFFFF";
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return "#FFFFFF";
   for (const [min, max, color] of RULES[column] ?? []) if (min <= numeric && numeric <= max) return color;
@@ -75,13 +76,13 @@ export function getMarketPulseTextColor(hex: string): "#000000" | "#FFFFFF" {
   return 0.299 * r + 0.587 * g + 0.114 * b > 186 ? "#000000" : "#FFFFFF";
 }
 
-export async function fetchMarketPulse(signal?: AbortSignal): Promise<{ rows: MarketPulseRow[]; fetchedAt: string }> {
+export async function fetchMarketPulse(signal?: AbortSignal, fetcher: typeof fetch = fetch): Promise<{ rows: MarketPulseRow[]; fetchedAt: string }> {
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(() => controller.abort(), 15000);
   const relayAbort = () => controller.abort();
   signal?.addEventListener("abort", relayAbort, { once: true });
   try {
-    const response = await fetch("/api/chartink/scan", {
+    const response = await fetcher("/api/chartink/scan", {
       method: "POST",
       mode: "same-origin",
       credentials: "same-origin",
@@ -106,7 +107,7 @@ export async function fetchMarketPulse(signal?: AbortSignal): Promise<{ rows: Ma
       } catch {
         // Keep a useful HTTP status even if the Worker returned a non-JSON error.
       }
-      throw new Error("ChartInk dashboard request failed through SchCatWeb API (HTTP " + response.status + (detail ? ": " + detail : "") + ").");
+      throw new Error("ChartInk dashboard request failed through SchCatNew API (HTTP " + response.status + (detail ? ": " + detail : "") + ").");
     }
     return {
       rows: parseMarketPulseResponse(await response.json()),
@@ -114,9 +115,9 @@ export async function fetchMarketPulse(signal?: AbortSignal): Promise<{ rows: Ma
     };
   } catch (error) {
     if (signal?.aborted) throw new Error("Market Pulse refresh was cancelled.");
-    if (error instanceof DOMException && error.name === "AbortError") throw new Error("SchCatWeb API did not respond within 15 seconds.");
+    if (error instanceof DOMException && error.name === "AbortError") throw new Error("SchCatNew API did not respond within 15 seconds.");
     if (error instanceof TypeError && /fetch|network|load failed/i.test(error.message)) {
-      throw new Error("SchCatWeb API could not be reached. Check that the Cloudflare Worker deployment includes the server-side API.");
+      throw new Error("SchCatNew API could not be reached. Check that the Cloudflare Worker deployment includes the server-side API.");
     }
     throw error instanceof Error ? error : new Error("Market Pulse could not be loaded.");
   } finally {
