@@ -26,8 +26,8 @@ test("legacy Excel workbooks are converted into browser-readable source data", a
 test("all archived legacy Industry Analysis files are indexed and published unchanged", async () => {
   const index = await readJson("industryAnalysisIndex.json");
   assert.equal(index.schemaVersion, 1);
-  assert.equal(index.count, 9);
-  assert.equal(index.files.length, 9);
+  assert.equal(index.count, 10);
+  assert.equal(index.files.length, 10);
   for (const entry of index.files) {
     const filePath = path.join(dataDir, "industry-analysis", entry.fileName);
     await access(filePath);
