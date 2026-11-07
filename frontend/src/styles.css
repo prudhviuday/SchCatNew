@@ -2431,3 +2431,7 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
 @media (max-width: 760px) {
   .analysis-grid { grid-template-columns: 1fr !important; }
 }
+
+
+/* Step 9: Industry Analysis full-universe run controls */
+.industry-run-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
