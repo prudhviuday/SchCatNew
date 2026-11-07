@@ -21,13 +21,21 @@ Last updated: 2026-11-07
 | 5 | Port shared Python calculations and utilities | Complete — audited the legacy utility layer, retained existing calculation ports, and added tested shared metric-presentation rules |
 | 6 | Complete Stocks screen parity | Complete — parity fixes committed and full CI passed on code commit `60e8725ccba8dfc7e6094c14f58700d6f5c2d201` (run `42386634477`) |
 | 7 | Complete Chart screen parity | In progress — four legacy timeframe panes and Worker data are present; added tested older/newer chart-window navigation and retained SMA/EMA alignment |
-| 8 | Complete Industry Stocks / multi-stock Analysis parity | Not started |
+| 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
 | 9 | Complete Industry Analysis parity | Not started |
 | 10 | Complete Research / Querys parity | Not started |
 | 11 | Complete Market Pulse parity | Not started |
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
+
+## Step 8 — Industry Stocks / multi-stock Analysis (in progress)
+
+Compared the original `Tabs/AnalysisTab.py` with `MultiStockAnalysis.tsx` and its domain helpers. The web gallery already covers the core desktop workflow: case-insensitive industry/stock substring search, exact-industry navigation from the Stocks tab, a 12-stock cap, weekly/daily chart pairs, refresh, scrollable chart cards, and opening a ticker in the full Chart tab. It fetches in small batches rather than launching every chart request at once.
+
+Fixed a parity mismatch in industry suggestions/cycling: the web helper previously alphabetically sorted industries, whereas the desktop completer and Right Arrow / `.` cycling followed first-seen source order. It now retains first-seen order, removes case-only duplicates, and ignores blank names. Added tests for ordering and duplicate handling. The existing `test:multi-stock-analysis` suite is now explicitly included in GitHub Actions so these behaviours are continuously checked.
+
+Verification pending: the full GitHub Actions run triggered by these commits. The gallery still relies on the same-origin Yahoo chart Worker and real upstream access is not inferred from fixture tests.
 
 ## Step 7 — Chart screen parity (in progress)
 
