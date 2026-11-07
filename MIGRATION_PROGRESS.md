@@ -23,7 +23,7 @@ Last updated: 2026-11-07
 | 7 | Complete Chart screen parity | In progress — four legacy timeframe panes and Worker data are present; added tested older/newer chart-window navigation and retained SMA/EMA alignment |
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
 | 9 | Complete Industry Analysis parity | Complete — full-universe batch run, exact legacy aggregations, browser persistence and combined JSON export; CI passed (run `42389197840`) |
-| 10 | Complete Research / Querys parity | In progress — migrated ChartInk queries and Book1 performance symbols now load automatically; ChartInk backtest and research evaluation remain available; CI pending |
+| 10 | Complete Research / Querys parity | Complete — migrated saved queries and performance symbols auto-load; live ChartInk history/evaluation retained; CI passed (run `42390084818`) |
 | 11 | Complete Market Pulse parity | Not started |
 | 12 | Complete Portfolio parity | Not started |
 | 13 | Full parity and regression verification | Not started |
@@ -44,7 +44,7 @@ Parity changes in this step:
 
 The workbook JSON is generated during the frontend prebuild from the archived source workbooks; it is a dated snapshot and does not refresh automatically from the original desktop machine. ChartInk history still depends on the live provider and Cloudflare Worker route.
 
-CI is pending for the latest changes. Browser test after deployment: open Research without importing files and confirm the migrated saved query and performance counts appear; run ChartInk history and verify progress/failure reporting; evaluate the results; then import a replacement query CSV and performance CSV to confirm manual overrides still work.
+GitHub Actions build/test passed on commit `557142e0ac105e8a8541d77e0496ad9f85299602` (run `42390084818`), including the frontend build, Wrangler dry-run and Research tests. Browser test after deployment: open Research without importing files and confirm the migrated saved query and performance counts appear; run ChartInk history and verify progress/failure reporting; evaluate the results; then import a replacement query CSV and performance CSV to confirm manual overrides still work.
 
 ## Step 9 — Industry Analysis (in progress)
 
