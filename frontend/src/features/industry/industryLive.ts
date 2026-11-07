@@ -126,3 +126,75 @@ export async function runLiveIndustryAnalysis(
     failures, completed, total: stocks.length, successfulStocks: successful.length
   };
 }
+
+export interface IndustryBatchProgress extends IndustryLiveProgress {
+  industry: string;
+  overallCompleted: number;
+  overallTotal: number;
+}
+export interface IndustryBatchResult {
+  results: LegacyIndustryResult[];
+  failures: Array<IndustryLiveFailure & { industry: string }>;
+  completed: number;
+  total: number;
+  successfulStocks: number;
+}
+
+/**
+ * Desktop parity: process every non-BSE industry and return one combined
+ * five-series result set, while limiting each industry's provider fan-out.
+ * Industries are deliberately sequential, matching the desktop worker's
+ * industry loop and keeping the browser/provider load predictable.
+ */
+export async function runAllIndustriesLive(
+  industries: readonly { industry: string; stocks: readonly MarketUniverseRecord[] }[],
+  marketSmithAuth: string,
+  options: IndustryLiveOptions & {
+    onBatchProgress?: (progress: IndustryBatchProgress) => void;
+  } = {}
+): Promise<IndustryBatchResult> {
+  if (!marketSmithAuth.trim()) {
+    throw new Error("Save a current MarketSmith session in Provider Diagnostics first.");
+  }
+  if (industries.length === 0) throw new RangeError("No industries are available to analyze");
+  const overallTotal = industries.reduce((sum, item) => sum + item.stocks.length, 0);
+  let overallCompleted = 0;
+  let successfulStocks = 0;
+  const results: LegacyIndustryResult[] = [];
+  const failures: Array<IndustryLiveFailure & { industry: string }> = [];
+
+  for (const item of industries) {
+    const live = await runLiveIndustryAnalysis(
+      item.industry,
+      item.stocks,
+      marketSmithAuth,
+      {
+        concurrency: options.concurrency,
+        dependencies: options.dependencies,
+        onProgress: (progress) => {
+          overallCompleted += 1;
+          options.onBatchProgress?.({
+            ...progress,
+            industry: item.industry,
+            overallCompleted,
+            overallTotal
+          });
+        }
+      }
+    );
+    results.push(live.result);
+    successfulStocks += live.successfulStocks;
+    failures.push(...live.failures.map((failure) => ({
+      ...failure,
+      industry: item.industry
+    })));
+  }
+
+  return {
+    results,
+    failures,
+    completed: overallCompleted,
+    total: overallTotal,
+    successfulStocks
+  };
+}
