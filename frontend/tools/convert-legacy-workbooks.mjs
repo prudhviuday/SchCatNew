@@ -142,10 +142,10 @@ function exportPerformance(rows) {
 fs.mkdirSync(outputDir, { recursive: true });
 const queryBook = await readWorkbook("ChartInkQs.xlsx");
 const querySheetName = queryBook.sheetNames.find((name) => name.trim().toUpperCase() === "QUERIES");
-const watchlistSheetName = queryBook.workbook.SheetNames.find((name) => name.trim().toUpperCase() === "WATCHLIST");
-const portfolioSheetName = queryBook.workbook.SheetNames.find((name) => name.trim().toUpperCase() === "PORTFOLIO");
+const watchlistSheetName = queryBook.sheetNames.find((name) => name.trim().toUpperCase() === "WATCHLIST");
+const portfolioSheetName = queryBook.sheetNames.find((name) => name.trim().toUpperCase() === "PORTFOLIO");
 if (!querySheetName || !watchlistSheetName || !portfolioSheetName) {
-  throw new Error("ChartInkQs.xlsx must contain QUERIES, Watchlist and Portfolio sheets. Found: " + queryBook.workbook.SheetNames.join(", "));
+  throw new Error("ChartInkQs.xlsx must contain QUERIES, Watchlist and Portfolio sheets. Found: " + queryBook.sheetNames.join(", "));
 }
 const queryData = exportQueries(queryBook.sheets[querySheetName]);
 const watchlistData = exportWatchlists(queryBook.sheets[watchlistSheetName]);
