@@ -27,7 +27,7 @@ Last updated: 2026-11-08
 | 11 | Complete Market Pulse parity | Complete — exact 4,478-character query, 13-column mapping, refresh behaviour and Worker request contract verified; CI passed (run `42445863179`) |
 | 12 | Complete Portfolio parity | Complete — synthetic OHLC/P&L workflow audited; first-visit workbook holdings migration and browser-local override behaviour tested; full CI passed (run `42473474421`) |
 | 13 | Full parity and regression verification | Complete — cross-feature/provider/Worker audit, production messaging cleanup, full build, Wrangler dry-run, migrated-data checks and complete feature/provider/integration test matrix passed (run `42488013513`) |
-| 14 | Final Cloudflare deployment and real URL verification | Not started |
+| 14 | Final Cloudflare deployment and real URL verification | In progress — corrected deployment instructions to require the Worker + static assets together; exact live URL and provider smoke tests still need confirmation from a network-enabled environment/Cloudflare dashboard |
 
 ## Step 11 — Market Pulse (complete)
 
@@ -211,3 +211,15 @@ The final CI run after all audit changes passed on commit `bd5b5f2693a1c49d84a02
 
 
 Step 13 closure: all automated checks are green on the latest main commit. No changes were made to the source `SchCat` or reference `SchCatWeb` repositories, and no branch was created. The remaining work is operational verification against the actual Cloudflare deployment and live upstream providers.
+
+
+## Step 14 — final Cloudflare deployment and real URL verification (in progress)
+
+Corrected `README.md`: it previously described publishing only `frontend/dist` to any static host, which would omit the Cloudflare Worker and break the same-origin provider API routes. The supported deployment is the root Worker plus bundled static assets, using Workers Builds settings:
+- Root directory: repository root
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+
+The root build runs the workbook converter and Vite build; Wrangler deploy publishes `worker/index.js` and `frontend/dist` together. Local preview is `npm run preview`.
+
+The GitHub Actions workflow is running for the README/deployment documentation commit. The exact live Cloudflare URL is not recorded in the repository. I attempted a direct live smoke check against the likely Worker hostname, but DNS resolution is unavailable in this execution environment; this is an environment limitation, not evidence that the deployment is down. Do not treat the inferred `workers.dev` hostname as verified. Need the actual URL from the Cloudflare Worker dashboard or user-provided deployed link to verify `/`, `/api/health`, and provider endpoints. MarketSmith's real data check additionally requires a current browser `ms-auth` session; other upstreams must be tested independently.
