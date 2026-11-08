@@ -24,12 +24,12 @@ Last updated: 2026-11-07
 | 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
 | 9 | Complete Industry Analysis parity | Complete — full-universe batch run, exact legacy aggregations, browser persistence and combined JSON export; CI passed (run `42389197840`) |
 | 10 | Complete Research / Querys parity | Complete — migrated saved queries and performance symbols auto-load; live ChartInk history/evaluation retained; CI passed (run `42390084818`) |
-| 11 | Complete Market Pulse parity | In progress — verified exact 4,478-character ChartInk query match; corrected Worker-flow documentation/branding, neutral blank handling and added request-contract tests; CI pending |
-| 12 | Complete Portfolio parity | Not started |
+| 11 | Complete Market Pulse parity | Complete — exact 4,478-character query, 13-column mapping, refresh behaviour and Worker request contract verified; CI passed (run `42445863179`) |
+| 12 | Complete Portfolio parity | In progress — audited desktop synthetic OHLC workflow; added first-visit seeding from the migrated legacy Portfolio workbook while preserving browser-local overrides; CI pending |
 | 13 | Full parity and regression verification | Not started |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
 
-## Step 11 — Market Pulse (in progress)
+## Step 11 — Market Pulse (complete)
 
 Compared the original `Tabs/MarketPulseTab.py` and `chartink.py::chartinkDashboard` against `MarketPulse.tsx`, `marketPulse.ts`, the Worker ChartInk widget route, and Market Pulse tests.
 
@@ -47,7 +47,7 @@ Fixes and tests added in this step:
 - Blank/null metric values now remain neutral instead of JavaScript coercing them to zero and potentially assigning a misleading colour.
 - Added tests for the exact Worker request contract (same-origin POST, widget mode, exact query, live flag, six sessions and size 375), Worker error propagation, and blank-value colour handling.
 
-The Worker route and upstream behaviour are covered by mocked tests; this does not prove ChartInk is currently reachable from the deployed Cloudflare Worker. CI is pending for the latest changes.
+The Worker route and upstream behaviour are covered by mocked tests; this does not prove ChartInk is currently reachable from the deployed Cloudflare Worker. GitHub Actions build/test passed on commit `980a0d5ff08557c3f49b778c164ede4ceba82cfd` (run `42445863179`).
 
 Browser test after deployment: open Market Pulse and confirm the 13-column history loads newest-first; verify ratios show one decimal, cell colours include neutral gaps, manually Refresh, enable Auto-refresh and wait one minute, then disable it. If ChartInk is unavailable, the page should show the actual Worker/provider error rather than sample data.
 
@@ -177,3 +177,16 @@ CI now installs the root Worker toolchain, runs the root `npm run build`, execut
 
 ## Next action
 Continue with **Step 7/14**: complete Chart screen parity against the original `Tabs/ChartTab.py` and chart engine, including interval panes, overlays, drawing/navigation behaviour, and chart data refresh.
+
+
+## Step 12 — Portfolio (in progress)
+
+Compared the original `Tabs/portfolioTab.py` with `Portfolio.tsx` and `portfolio.ts`. The desktop reads holdings from `util.getPortfolio()`, fetches Weekly, Daily, Hourly and 5-minute candles for each holding, converts each stock's OHLC into quantity-weighted unrealised P&L contribution (`quantity × (OHLC − buy price)`), aligns the union of timestamps, forward-fills each holding independently (zero before its first bar), sums volume, and limits the result to 800 points.
+
+The web implementation already supports the four matching timeframes, the same synthetic OHLC/P&L aggregation, up to 800 bars, current-value/unrealised-P&L summaries, editable holdings, browser-local persistence, and CSV/JSON backup and restore. These are additional web conveniences; they do not change the legacy chart calculation.
+
+Parity gap addressed: the desktop automatically reads the saved Portfolio sheet, but a first-time web visit previously started with an empty portfolio despite the migrated workbook snapshot. Added a validated parser for `legacyWorkbookData.json` and first-visit seeding from its `portfolio.holdings`. Existing browser-local holdings always take precedence, including an intentionally empty saved portfolio, so later visits do not overwrite user edits. Added tests for valid defaults, empty/missing snapshots, and invalid rows.
+
+CI is pending for the latest Portfolio changes. Live chart prices still depend on the deployed same-origin Yahoo Worker route and upstream availability; automated tests do not prove live Yahoo access.
+
+Browser test after deployment: open Portfolio in a fresh browser profile and confirm the two migrated workbook holdings appear; edit/add/remove a holding, reload and confirm local changes persist; refresh prices & charts and inspect all four timeframes; export JSON/CSV, then test merge and replace imports. In a browser that already has a saved portfolio, confirm the migrated defaults do not overwrite it.
