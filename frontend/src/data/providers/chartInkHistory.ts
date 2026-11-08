@@ -66,8 +66,8 @@ export async function fetchChartInkHistory(
   } catch (error) {
     const timedOut = error instanceof Error && error.name === "AbortError";
     throw new Error(timedOut
-      ? "ChartInk historical backtest timed out while waiting for the SchCatWeb Worker."
-      : error instanceof Error ? "Could not reach the SchCatWeb Worker: " + error.message : "Could not reach the SchCatWeb Worker.");
+      ? "ChartInk historical backtest timed out while waiting for the SchCatNew Worker."
+      : error instanceof Error ? "Could not reach the SchCatNew Worker: " + error.message : "Could not reach the SchCatNew Worker.");
   } finally {
     globalThis.clearTimeout(timeoutId);
   }
