@@ -38,7 +38,7 @@ test("HTTP errors preserve the Worker error code or message", async () => {
 });
 
 test("network errors and malformed symbols fail clearly", async () => {
-  await assert.rejects(fetchChartInkScan("close > 1", async () => { throw new Error("offline"); }), /Could not reach the SchCatWeb Worker: offline/);
+  await assert.rejects(fetchChartInkScan("close > 1", async () => { throw new Error("offline"); }), /Could not reach the SchCatNew Worker: offline/);
   await assert.rejects(fetchChartInkScan("close > 1", async () => response({ data: [{ nsecode: "!!!" }] })), /none contained a valid NSE symbol/);
   await assert.rejects(fetchChartInkScan("   ", async () => response({ data: [] })), /no ChartInk query clause/);
 });
