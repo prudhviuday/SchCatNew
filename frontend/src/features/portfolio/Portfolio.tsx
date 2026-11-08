@@ -253,7 +253,7 @@ function Portfolio() {
     setCharts(nextCharts);
     if (failures.length) {
       const uniqueFailedSymbols = [...new Set(failures.map((item) => item.split(" ")[0]))];
-      setChartError(failures.length + " timeframe request(s) failed across " + uniqueFailedSymbols.length + " holding(s). Available symbols are still included; check Yahoo Finance browser CORS/access. " + failures.slice(0, 3).join(" · "));
+      setChartError(failures.length + " timeframe request(s) failed across " + uniqueFailedSymbols.length + " holding(s). Available symbols are still included; check the Cloudflare Worker and Yahoo Finance upstream access. " + failures.slice(0, 3).join(" · "));
     } else {
       setChartError("");
     }
@@ -338,7 +338,7 @@ function Portfolio() {
         </div>
         <p className="portfolio-footnote">These charts show aggregate unrealised P&amp;L contribution, not portfolio market value or a time-weighted investment return. Holdings without provider data are excluded from that timeframe's synthetic chart. Latest price and P&amp;L cells remain blank until daily prices are fetched.</p>
       </section>
-      <footer className="page-footer">SCHCATWEB <span>·</span> PORTFOLIO <span>·</span> BROWSER-LOCAL STORAGE</footer>
+      <footer className="page-footer">SCHCAT <span>·</span> PORTFOLIO <span>·</span> BROWSER-LOCAL STORAGE</footer>
     </div>
   );
 }
