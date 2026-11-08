@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   MARKET_PULSE_COLUMNS,
   MARKET_PULSE_QUERY,
+  fetchMarketPulse,
   getMarketPulseCellColor,
   getMarketPulseTextColor,
   parseMarketPulseResponse
