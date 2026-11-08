@@ -9,6 +9,7 @@ import {
   exportPortfolioJson,
   mergePortfolioHoldings,
   parsePortfolioImport,
+  parseLegacyPortfolioDefaults,
   validatePortfolioHoldings
 } from "../../.test-dist/features/portfolio/portfolio.js";
 
@@ -79,4 +80,16 @@ test("CSV parser handles quoted fields and merge replaces by symbol", () => {
 test("stored portfolio validation accepts legacy three-column rows", () => {
   const result = validatePortfolioHoldings([["RVNL", 12, 320]]);
   assert.deepEqual(result.map(({ symbol, quantity, buyPrice }) => ({ symbol, quantity, buyPrice })), [{ symbol: "RVNL", quantity: 12, buyPrice: 320 }]);
+});
+
+test("legacy workbook portfolio defaults seed the first browser portfolio", () => {
+  const defaults = parseLegacyPortfolioDefaults({
+    portfolio: { schemaVersion: 1, holdings: [{ symbol: "RVNL", quantity: 12, buyPrice: 320 }] }
+  });
+  assert.deepEqual(defaults.map(({ symbol, quantity, buyPrice }) => ({ symbol, quantity, buyPrice })), [
+    { symbol: "RVNL", quantity: 12, buyPrice: 320 }
+  ]);
+  assert.deepEqual(parseLegacyPortfolioDefaults({ portfolio: { holdings: [] } }), []);
+  assert.deepEqual(parseLegacyPortfolioDefaults({}), []);
+  assert.throws(() => parseLegacyPortfolioDefaults({ portfolio: { holdings: [{ symbol: "RVNL", quantity: 0, buyPrice: 320 }] } }), /Quantity/);
 });
