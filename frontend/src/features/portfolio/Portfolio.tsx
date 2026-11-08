@@ -14,6 +14,7 @@ import {
   formatPortfolioPercent,
   mergePortfolioHoldings,
   parsePortfolioImport,
+  parseLegacyPortfolioDefaults,
   validatePortfolioHoldings,
   type PortfolioCandle,
   type PortfolioHolding
@@ -96,23 +97,37 @@ function Portfolio() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(PORTFOLIO_STORAGE_KEY);
-      if (raw) {
-        const parsed: unknown = JSON.parse(raw);
-        const root = parsed && typeof parsed === "object" && !Array.isArray(parsed)
-          ? parsed as Record<string, unknown>
-          : null;
-        if (root && root.version !== undefined && root.version !== PORTFOLIO_SCHEMA_VERSION) {
-          throw new Error("Saved portfolio uses an unsupported version. Export it before replacing browser storage.");
+    let cancelled = false;
+    async function loadPortfolio() {
+      try {
+        const raw = window.localStorage.getItem(PORTFOLIO_STORAGE_KEY);
+        if (raw) {
+          const parsed: unknown = JSON.parse(raw);
+          const root = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+            ? parsed as Record<string, unknown>
+            : null;
+          if (root && root.version !== undefined && root.version !== PORTFOLIO_SCHEMA_VERSION) {
+            throw new Error("Saved portfolio uses an unsupported version. Export it before replacing browser storage.");
+          }
+          if (!cancelled) setHoldings(validatePortfolioHoldings(Array.isArray(parsed) ? parsed : root?.holdings ?? []));
+        } else {
+          // First visit only: seed from the archived desktop Portfolio sheet.
+          // Once saved, even an intentionally empty local portfolio takes precedence.
+          const response = await fetch("/data/legacyWorkbookData.json", { cache: "no-cache" });
+          if (response.ok) {
+            const snapshot: unknown = await response.json();
+            const defaults = parseLegacyPortfolioDefaults(snapshot);
+            if (!cancelled && defaults.length) setHoldings(defaults);
+          }
         }
-        setHoldings(validatePortfolioHoldings(Array.isArray(parsed) ? parsed : root?.holdings ?? []));
+      } catch (error) {
+        if (!cancelled) setStorageError(error instanceof Error ? error.message : "Could not read local portfolio storage.");
+      } finally {
+        if (!cancelled) setStorageReady(true);
       }
-    } catch (error) {
-      setStorageError(error instanceof Error ? error.message : "Could not read local portfolio storage.");
-    } finally {
-      setStorageReady(true);
     }
+    void loadPortfolio();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
