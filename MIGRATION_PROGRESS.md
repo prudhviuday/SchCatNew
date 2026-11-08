@@ -1,6 +1,6 @@
 # SchCatNew migration checkpoint
 
-Last updated: 2026-11-07
+Last updated: 2026-11-08
 
 ## Project rules
 - Work only in `prudhviuday/SchCatNew`, branch `main`.
@@ -16,17 +16,17 @@ Last updated: 2026-11-07
 |---|---|---|
 | 1 | Audit original Python app against SchCatNew | Complete — source audit only; no files modified |
 | 2 | Migrate original reference workbooks, saved queries, watchlists, portfolio and Industry Analysis history | Complete — data archived and browser JSON conversion added |
-| 3 | Integrate SchCatWeb API gateway into SchCatNew | Complete in repository — Worker, Wrangler config and route tests added; Cloudflare production build status still unverified/failed |
-| 4 | Complete provider integration and verify live upstream behaviour | Complete — user confirmed the SchCatNew Cloudflare site is working; MarketSmith data still requires a valid browser `ms-auth` session |
+| 3 | Integrate SchCatWeb API gateway into SchCatNew | Complete — Worker, Wrangler config, static asset binding and API route tests are in place; user confirmed the Cloudflare site is working |
+| 4 | Complete provider integration and verify live upstream behaviour | Integration code complete — all browser providers use same-origin Worker routes; actual live upstream reliability remains subject to final live checks and MarketSmith `ms-auth` session |
 | 5 | Port shared Python calculations and utilities | Complete — audited the legacy utility layer, retained existing calculation ports, and added tested shared metric-presentation rules |
 | 6 | Complete Stocks screen parity | Complete — parity fixes committed and full CI passed on code commit `60e8725ccba8dfc7e6094c14f58700d6f5c2d201` (run `42386634477`) |
-| 7 | Complete Chart screen parity | In progress — four legacy timeframe panes and Worker data are present; added tested older/newer chart-window navigation and retained SMA/EMA alignment |
-| 8 | Complete Industry Stocks / multi-stock Analysis parity | In progress — audited original AnalysisTab and web gallery; fixed industry cycling order and added CI coverage |
+| 7 | Complete Chart screen parity | Complete — four legacy timeframe panes, same-origin Yahoo proxy, indicator alignment and tested older/newer history navigation; full CI passed (run `42473474421`) |
+| 8 | Complete Industry Stocks / multi-stock Analysis parity | Complete — legacy first-seen industry order restored, batched charts and gallery navigation covered; full CI passed (run `42473474421`) |
 | 9 | Complete Industry Analysis parity | Complete — full-universe batch run, exact legacy aggregations, browser persistence and combined JSON export; CI passed (run `42389197840`) |
 | 10 | Complete Research / Querys parity | Complete — migrated saved queries and performance symbols auto-load; live ChartInk history/evaluation retained; CI passed (run `42390084818`) |
 | 11 | Complete Market Pulse parity | Complete — exact 4,478-character query, 13-column mapping, refresh behaviour and Worker request contract verified; CI passed (run `42445863179`) |
-| 12 | Complete Portfolio parity | In progress — audited desktop synthetic OHLC workflow; added first-visit seeding from the migrated legacy Portfolio workbook while preserving browser-local overrides; CI pending |
-| 13 | Full parity and regression verification | Not started |
+| 12 | Complete Portfolio parity | Complete — synthetic OHLC/P&L workflow audited; first-visit workbook holdings migration and browser-local override behaviour tested; full CI passed (run `42473474421`) |
+| 13 | Full parity and regression verification | In progress — cross-feature/provider/Worker audit; corrected remaining SchCatWeb UI error labels and outdated Yahoo CORS guidance; CI pending |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
 
 ## Step 11 — Market Pulse (complete)
@@ -51,7 +51,7 @@ The Worker route and upstream behaviour are covered by mocked tests; this does n
 
 Browser test after deployment: open Market Pulse and confirm the 13-column history loads newest-first; verify ratios show one decimal, cell colours include neutral gaps, manually Refresh, enable Auto-refresh and wait one minute, then disable it. If ChartInk is unavailable, the page should show the actual Worker/provider error rather than sample data.
 
-## Step 10 — Research / Querys (in progress)
+## Step 10 — Research / Querys (complete)
 
 Compared the original `Tabs/ResearchTab.py` and `util.getHistoryfromQuery` workflow with `Research.tsx`, `research.ts`, and the same-origin ChartInk history provider.
 
@@ -68,7 +68,7 @@ The workbook JSON is generated during the frontend prebuild from the archived so
 
 GitHub Actions build/test passed on commit `557142e0ac105e8a8541d77e0496ad9f85299602` (run `42390084818`), including the frontend build, Wrangler dry-run and Research tests. Browser test after deployment: open Research without importing files and confirm the migrated saved query and performance counts appear; run ChartInk history and verify progress/failure reporting; evaluate the results; then import a replacement query CSV and performance CSV to confirm manual overrides still work.
 
-## Step 9 — Industry Analysis (in progress)
+## Step 9 — Industry Analysis (complete)
 
 Compared the original `Tabs/IndustryAnalysisTab.py` and `util.py` with `IndustryAnalysis.tsx`, `industryAnalysis.ts`, `industryLive.ts`, and the Yahoo / MarketSmith / NSE provider adapters.
 
@@ -190,3 +190,21 @@ Parity gap addressed: the desktop automatically reads the saved Portfolio sheet,
 CI is pending for the latest Portfolio changes. Live chart prices still depend on the deployed same-origin Yahoo Worker route and upstream availability; automated tests do not prove live Yahoo access.
 
 Browser test after deployment: open Portfolio in a fresh browser profile and confirm the two migrated workbook holdings appear; edit/add/remove a holding, reload and confirm local changes persist; refresh prices & charts and inspect all four timeframes; export JSON/CSV, then test merge and replace imports. In a browser that already has a saved portfolio, confirm the migrated defaults do not overwrite it.
+
+
+## Step 13 — full parity and regression verification (in progress)
+
+The full automated workflow passed after the Portfolio migration (GitHub Actions run `42473474421`): TypeScript/Vite production build, Wrangler Worker dry-run and asset binding validation, migrated workbook/reference data checks, and the complete feature/provider/integration test matrix. This run includes Chart, Industry Stocks, Industry Analysis, Research, Market Pulse, Portfolio, Yahoo, MarketSmith, ChartInk, NSE and Worker API tests.
+
+A final cross-feature audit checked the frontend provider clients against the Worker route table:
+- Yahoo chart candles use `GET /api/yahoo/chart`.
+- MarketSmith symbol, finance and relative-strength clients use the matching authenticated Worker routes.
+- ChartInk scan and historical backtest use `POST /api/chartink/scan` with distinct modes.
+- NSE delivery uses `GET /api/nse/delivery`.
+- Provider Diagnostics health checks expect the SchCatNew Worker identity and route inventory.
+- Legacy workbook data is build-generated and shared by Stocks, Research and Portfolio; Industry Analysis snapshots remain static assets.
+- Portfolio holdings and Industry Analysis results are browser-local; no private holdings are embedded into the published workbook snapshot.
+
+Cross-module polish found and fixed stale visible ChartInk errors referring to the SchCatWeb Worker, the Portfolio footer's old product label, and an obsolete Portfolio error message that told users to check browser Yahoo CORS even though chart requests now use the same-origin Worker. MarketSmith's legacy local-storage key remains intentionally unchanged to preserve an existing saved browser session.
+
+The full CI run above predates these final wording-only changes; a fresh CI run is pending. This step does not yet establish live provider availability or exact deployed Cloudflare URL behaviour. Those are reserved for Step 14.
