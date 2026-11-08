@@ -26,7 +26,7 @@ Last updated: 2026-11-08
 | 10 | Complete Research / Querys parity | Complete — migrated saved queries and performance symbols auto-load; live ChartInk history/evaluation retained; CI passed (run `42390084818`) |
 | 11 | Complete Market Pulse parity | Complete — exact 4,478-character query, 13-column mapping, refresh behaviour and Worker request contract verified; CI passed (run `42445863179`) |
 | 12 | Complete Portfolio parity | Complete — synthetic OHLC/P&L workflow audited; first-visit workbook holdings migration and browser-local override behaviour tested; full CI passed (run `42473474421`) |
-| 13 | Full parity and regression verification | In progress — cross-feature/provider/Worker audit; corrected remaining SchCatWeb UI error labels and outdated Yahoo CORS guidance; CI pending |
+| 13 | Full parity and regression verification | Complete — cross-feature/provider/Worker audit, production messaging cleanup, full build, Wrangler dry-run, migrated-data checks and complete feature/provider/integration test matrix passed (run `42488013513`) |
 | 14 | Final Cloudflare deployment and real URL verification | Not started |
 
 ## Step 11 — Market Pulse (complete)
@@ -207,4 +207,7 @@ A final cross-feature audit checked the frontend provider clients against the Wo
 
 Cross-module polish found and fixed stale visible ChartInk errors referring to the SchCatWeb Worker, the Portfolio footer's old product label, and an obsolete Portfolio error message that told users to check browser Yahoo CORS even though chart requests now use the same-origin Worker. MarketSmith's legacy local-storage key remains intentionally unchanged to preserve an existing saved browser session.
 
-The full CI run above predates these final wording-only changes; a fresh CI run is pending. This step does not yet establish live provider availability or exact deployed Cloudflare URL behaviour. Those are reserved for Step 14.
+The final CI run after all audit changes passed on commit `bd5b5f2693a1c49d84a02d1728742d83c987613e` (run `42488013513`). This step does not establish live provider availability or exact deployed Cloudflare URL behaviour. Those are reserved for Step 14.
+
+
+Step 13 closure: all automated checks are green on the latest main commit. No changes were made to the source `SchCat` or reference `SchCatWeb` repositories, and no branch was created. The remaining work is operational verification against the actual Cloudflare deployment and live upstream providers.
