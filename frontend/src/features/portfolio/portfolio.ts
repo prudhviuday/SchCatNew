@@ -92,6 +92,18 @@ export function validatePortfolioHoldings(value: unknown): PortfolioHolding[] {
   });
 }
 
+
+/** Read the original ChartInkQs.xlsx Portfolio sheet snapshot generated at build time. */
+export function parseLegacyPortfolioDefaults(value: unknown): PortfolioHolding[] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+  const root = value as Record<string, unknown>;
+  const portfolio = root.portfolio;
+  if (!portfolio || typeof portfolio !== "object" || Array.isArray(portfolio)) return [];
+  const holdings = (portfolio as Record<string, unknown>).holdings;
+  if (!Array.isArray(holdings) || holdings.length === 0) return [];
+  return validatePortfolioHoldings(holdings);
+}
+
 export function calculateHoldingMetrics(
   holding: Pick<PortfolioHolding, "quantity" | "buyPrice">,
   currentPrice: number | null | undefined
