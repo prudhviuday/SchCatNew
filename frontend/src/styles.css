@@ -2818,3 +2818,13 @@ body::-webkit-scrollbar-corner,
   border: 1px solid #0b121b !important;
   border-radius: 8px !important;
 }
+
+
+/* Ensure the new two-line identity typography wins over the legacy table selector. */
+.screener-main-workspace .screener-table td .screener-stock-identity .screener-symbol {
+  color: #f1c486;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: .15px;
+}
