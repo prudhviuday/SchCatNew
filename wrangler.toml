@@ -4,7 +4,8 @@ compatibility_date = "2026-11-07"
 workers_dev = true
 
 # Isolated Cloudflare Worker Previews for non-production branches.
-previews = {}
+[previews.vars]
+SCHCAT_ENV = "preview"
 
 [assets]
 directory = "./frontend/dist"
