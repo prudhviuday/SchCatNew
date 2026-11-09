@@ -18,12 +18,6 @@ export default function SelectedStockGraphs({
   message,
   updatedAt
 }: SelectedStockGraphsProps) {
-  const statusLabel = status === "loading" ? "Loading…" :
-    status === "ready" ? "LIVE" :
-    status === "partial" ? "PARTIAL" :
-    status === "auth-required" ? "SESSION REQUIRED" :
-    status === "error" ? "UNAVAILABLE" : "—";
-
   return (
     <section className="screener-detail-graphs" aria-label={symbol + " live company history graphs"}>
       {status !== "ready" && status !== "idle" && (
