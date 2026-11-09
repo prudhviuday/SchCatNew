@@ -12,12 +12,12 @@ import type { MarketUniverseRecord } from "./data/reference/marketUniverse";
 type Page = "screener" | "workspace" | "industry" | "research" | "pulse" | "portfolio" | "analysis";
 
 const WORKSPACE_TABS: ReadonlyArray<{ page: Page; label: string }> = [
-  { page: "screener", label: "Stocks" },
-  { page: "workspace", label: "Chart" },
-  { page: "analysis", label: "Industry Stocks" },
-  { page: "industry", label: "Industry Analysis" },
-  { page: "research", label: "Querys" },
-  { page: "pulse", label: "Market" },
+  { page: "screener", label: "Screener" },
+  { page: "workspace", label: "Charts" },
+  { page: "analysis", label: "Industry Leaders" },
+  { page: "industry", label: "Sector Map" },
+  { page: "research", label: "Research" },
+  { page: "pulse", label: "Market Pulse" },
   { page: "portfolio", label: "Portfolio" }
 ];
 
