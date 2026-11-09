@@ -624,159 +624,158 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
 
   return (
     <div className="screener-content screener-desktop-content">
-      <div className="screener-commandbar">
-        <div className="screener-commandbar-main">
-          <button
-            type="button"
-            className="screener-button screener-command-button"
-            onClick={() => void refreshMarketSmithData()}
-            disabled={loading || marketSmithRefresh.status === "loading" || records.length === 0}
-          >
-            {marketSmithRefresh.status === "loading"
-              ? "Fetching " + marketSmithRefresh.completed.toLocaleString("en-IN") + "/" + marketSmithRefresh.total.toLocaleString("en-IN")
-              : "▶ Fetch Data"}
-          </button>
-          <span className="screener-command-count">
-            {loading ? "Loading universe…" : filteredRecords.length.toLocaleString("en-IN") + " / " + records.length.toLocaleString("en-IN")}
-          </span>
-        </div>
-
-        <label className="screener-command-search">
-          <span>⌕</span>
-          <input
-            aria-label="Search stock"
-            value={search}
-            onChange={(event) => { setSearch(event.target.value);  }}
-            placeholder="Search Stock"
-          />
-          {search && <button type="button" aria-label="Clear search" onClick={() => setSearch("")}>×</button>}
-        </label>
-
-        <button
-          type="button"
-          className={"screener-icon-button" + (activeAdvancedFilterCount ? " has-filters" : "")}
-          aria-label="Open filter settings"
-          title="Filter settings"
-          onClick={() => { setSettingsSection("filters"); setSettingsOpen(true); }}
-        >
-          <span aria-hidden="true">⚙</span>
-          {activeAdvancedFilterCount > 0 && <small>{activeAdvancedFilterCount}</small>}
-        </button>
-
-        <button
-          type="button"
-          className="screener-button secondary screener-command-button"
-          onClick={() => downloadCsv(filteredRecords)}
-          disabled={loading || filteredRecords.length === 0}
-        >
-          ↓ Download
-        </button>
-
-        <div className="screener-command-dropdown">
-          <button
-            type="button"
-            className="screener-button secondary screener-command-button"
-            aria-expanded={queryMenuOpen}
-            onClick={() => {
-              if (!queryMenuOpen) setQueryDraft(selectedQueries);
-              setQueryMenuOpen((open) => !open);
-            }}
-          >
-            Query{selectedQueries.length ? " (" + selectedQueries.length + ")" : ""} ▾
-          </button>
-          {queryMenuOpen && (
-            <div className="screener-command-menu">
-              <div className="screener-command-menu-heading">
-                <strong>Select queries</strong>
-                <button type="button" aria-label="Close query menu" onClick={() => setQueryMenuOpen(false)}>×</button>
-              </div>
-              {queries.length === 0 ? (
-                <p className="screener-muted">No saved queries. Open Settings → Queries to create one.</p>
-              ) : queries.map((query) => (
-                <div className="screener-command-query" key={query.name}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={queryDraft.includes(query.name)}
-                      onChange={(event) => setQueryDraft((current) => event.target.checked
-                        ? [...current, query.name]
-                        : current.filter((name) => name !== query.name))}
-                    />
-                    <span>{query.name}</span>
-                    <small>{query.symbols.length}</small>
-                  </label>
-                  {query.queryCode && (
-                    <button
-                      type="button"
-                      className="screener-query-run"
-                      disabled={queryRuns[query.name]?.status === "loading"}
-                      onClick={() => void runSavedQuery(query.name)}
-                    >
-                      {queryRuns[query.name]?.status === "loading" ? "Running…" : "Scan"}
-                    </button>
-                  )}
-                  {queryRuns[query.name] && <small className={"screener-query-run-status " + queryRuns[query.name].status}>{queryRuns[query.name].message}</small>}
-                </div>
-              ))}
-              <div className="screener-command-menu-footer">
-                <button type="button" className="screener-text-button" onClick={() => { setSettingsSection("queries"); setSettingsOpen(true); setQueryMenuOpen(false); }}>Manage</button>
-                <button type="button" className="screener-button" onClick={() => { setSelectedQueries(queryDraft);  setQueryMenuOpen(false); }}>Go</button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="screener-watchlist-command">
-          <select
-            aria-label="Select watchlist"
-            value={watchlistTarget}
-            onChange={(event) => setWatchlistTarget(event.target.value)}
-          >
-            <option value="">Watchlist</option>
-            {library.watchlists.map((item) => <option key={item.name} value={item.name}>{item.name} ({item.symbols.length})</option>)}
-          </select>
-          <button
-            type="button"
-            className="screener-button secondary screener-command-button"
-            onClick={() => { setActiveWatchlist((current) => toggleWatchlistFilter(current, watchlistTarget));  }}
-          >
-            {activeWatchlist && activeWatchlist === watchlistTarget ? "Drop" : "Go"}
-          </button>
-        </div>
-
-        <button
-          type="button"
-          className="screener-button secondary screener-command-button"
-          onClick={() => { setSettingsSection("watchlists"); setSettingsOpen(true); }}
-        >
-          Library
-        </button>
-      </div>
-
-      <div className="screener-status-strip" role="status" aria-live="polite">
-        <span>
-          {loading ? "Loading stock universe…" : activeWatchlist ? "Watchlist: " + activeWatchlist : "All stocks"}
-          {selectedQueries.length ? " · " + selectedQueries.join(" ∩ ") : ""}
-        </span>
-        {marketSmithRefresh.status === "loading" ? (
-          <span>MarketSmith {marketSmithRefresh.completed}/{marketSmithRefresh.total}</span>
-        ) : marketSmithRefresh.status === "error" ? (
-          <span className="screener-inline-error">{marketSmithRefresh.message}</span>
-        ) : marketSmithRefresh.status === "complete" ? (
-          <span>MarketSmith: {marketSmithRefresh.succeeded} updated · {marketSmithRefresh.failed} failed · {marketSmithRefresh.skipped} skipped</span>
-        ) : null}
-        {nikRefresh.status === "loading" ? <span>NikScore {nikRefresh.completed}/{nikRefresh.total}</span> : null}
-        {nikRefresh.status === "error" ? <span className="screener-inline-error">{nikRefresh.message}</span> : null}
-      </div>
-
-      {loadError && <div className="screener-error" role="alert">{loadError}</div>}
-
       <div className="screener-main-workspace">
         <section className="screener-table-panel">
+          <div className="screener-commandbar">
+            <div className="screener-commandbar-main">
+              <button
+                type="button"
+                className="screener-button screener-command-button"
+                onClick={() => void refreshMarketSmithData()}
+                disabled={loading || marketSmithRefresh.status === "loading" || records.length === 0}
+              >
+                {marketSmithRefresh.status === "loading"
+                  ? "Fetching " + marketSmithRefresh.completed.toLocaleString("en-IN") + "/" + marketSmithRefresh.total.toLocaleString("en-IN")
+                  : "▶ Fetch Data"}
+              </button>
+              <span className="screener-command-count">
+                {loading ? "Loading universe…" : filteredRecords.length.toLocaleString("en-IN") + " / " + records.length.toLocaleString("en-IN")}
+              </span>
+            </div>
+    
+            <label className="screener-command-search">
+              <span>⌕</span>
+              <input
+                aria-label="Search stock"
+                value={search}
+                onChange={(event) => { setSearch(event.target.value);  }}
+                placeholder="Search Stock"
+              />
+              {search && <button type="button" aria-label="Clear search" onClick={() => setSearch("")}>×</button>}
+            </label>
+    
+            <button
+              type="button"
+              className={"screener-icon-button" + (activeAdvancedFilterCount ? " has-filters" : "")}
+              aria-label="Open filter settings"
+              title="Filter settings"
+              onClick={() => { setSettingsSection("filters"); setSettingsOpen(true); }}
+            >
+              <span aria-hidden="true">⚙</span>
+              {activeAdvancedFilterCount > 0 && <small>{activeAdvancedFilterCount}</small>}
+            </button>
+    
+            <button
+              type="button"
+              className="screener-button secondary screener-command-button"
+              onClick={() => downloadCsv(filteredRecords)}
+              disabled={loading || filteredRecords.length === 0}
+            >
+              ↓ Download
+            </button>
+    
+            <div className="screener-command-dropdown">
+              <button
+                type="button"
+                className="screener-button secondary screener-command-button"
+                aria-expanded={queryMenuOpen}
+                onClick={() => {
+                  if (!queryMenuOpen) setQueryDraft(selectedQueries);
+                  setQueryMenuOpen((open) => !open);
+                }}
+              >
+                Query{selectedQueries.length ? " (" + selectedQueries.length + ")" : ""} ▾
+              </button>
+              {queryMenuOpen && (
+                <div className="screener-command-menu">
+                  <div className="screener-command-menu-heading">
+                    <strong>Select queries</strong>
+                    <button type="button" aria-label="Close query menu" onClick={() => setQueryMenuOpen(false)}>×</button>
+                  </div>
+                  {queries.length === 0 ? (
+                    <p className="screener-muted">No saved queries. Open Settings → Queries to create one.</p>
+                  ) : queries.map((query) => (
+                    <div className="screener-command-query" key={query.name}>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={queryDraft.includes(query.name)}
+                          onChange={(event) => setQueryDraft((current) => event.target.checked
+                            ? [...current, query.name]
+                            : current.filter((name) => name !== query.name))}
+                        />
+                        <span>{query.name}</span>
+                        <small>{query.symbols.length}</small>
+                      </label>
+                      {query.queryCode && (
+                        <button
+                          type="button"
+                          className="screener-query-run"
+                          disabled={queryRuns[query.name]?.status === "loading"}
+                          onClick={() => void runSavedQuery(query.name)}
+                        >
+                          {queryRuns[query.name]?.status === "loading" ? "Running…" : "Scan"}
+                        </button>
+                      )}
+                      {queryRuns[query.name] && <small className={"screener-query-run-status " + queryRuns[query.name].status}>{queryRuns[query.name].message}</small>}
+                    </div>
+                  ))}
+                  <div className="screener-command-menu-footer">
+                    <button type="button" className="screener-text-button" onClick={() => { setSettingsSection("queries"); setSettingsOpen(true); setQueryMenuOpen(false); }}>Manage</button>
+                    <button type="button" className="screener-button" onClick={() => { setSelectedQueries(queryDraft);  setQueryMenuOpen(false); }}>Go</button>
+                  </div>
+                </div>
+              )}
+            </div>
+    
+            <div className="screener-watchlist-command">
+              <select
+                aria-label="Select watchlist"
+                value={watchlistTarget}
+                onChange={(event) => setWatchlistTarget(event.target.value)}
+              >
+                <option value="">Watchlist</option>
+                {library.watchlists.map((item) => <option key={item.name} value={item.name}>{item.name} ({item.symbols.length})</option>)}
+              </select>
+              <button
+                type="button"
+                className="screener-button secondary screener-command-button"
+                onClick={() => { setActiveWatchlist((current) => toggleWatchlistFilter(current, watchlistTarget));  }}
+              >
+                {activeWatchlist && activeWatchlist === watchlistTarget ? "Drop" : "Go"}
+              </button>
+            </div>
+    
+            <button
+              type="button"
+              className="screener-button secondary screener-command-button"
+              onClick={() => { setSettingsSection("watchlists"); setSettingsOpen(true); }}
+            >
+              Library
+            </button>
+          </div>
+    
+          <div className="screener-status-strip" role="status" aria-live="polite">
+            <span>
+              {loading ? "Loading stock universe…" : activeWatchlist ? "Watchlist: " + activeWatchlist : "All stocks"}
+              {selectedQueries.length ? " · " + selectedQueries.join(" ∩ ") : ""}
+            </span>
+            {marketSmithRefresh.status === "loading" ? (
+              <span>MarketSmith {marketSmithRefresh.completed}/{marketSmithRefresh.total}</span>
+            ) : marketSmithRefresh.status === "error" ? (
+              <span className="screener-inline-error">{marketSmithRefresh.message}</span>
+            ) : marketSmithRefresh.status === "complete" ? (
+              <span>MarketSmith: {marketSmithRefresh.succeeded} updated · {marketSmithRefresh.failed} failed · {marketSmithRefresh.skipped} skipped</span>
+            ) : null}
+            {nikRefresh.status === "loading" ? <span>NikScore {nikRefresh.completed}/{nikRefresh.total}</span> : null}
+            {nikRefresh.status === "error" ? <span className="screener-inline-error">{nikRefresh.message}</span> : null}
+          </div>
+    
+          {loadError && <div className="screener-error" role="alert">{loadError}</div>}
           <div className="screener-table-top">
             <div>
-              <span className="eyebrow">MATCHING STOCKS</span>
-              <h2>{loading ? "Loading…" : filteredRecords.length.toLocaleString("en-IN") + " results"}</h2>
+<span className="eyebrow">MARKET UNIVERSE</span>
+          <h2>{loading ? "Loading universe…" : filteredRecords.length.toLocaleString("en-IN") + " stocks found"}</h2>
             </div>
             
           </div>
@@ -876,8 +875,8 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
 
           <div className="screener-table-footer">
             <span>All {filteredRecords.length.toLocaleString("en-IN")} matching stocks shown</span>
-            <span>Click a row for live fundamentals · Stock opens Chart · Industry opens its stock charts</span>
-            <span>→ saves to selected watchlist · keys 1–9 use watchlist order</span>
+<span>Select a row for fundamentals · open the ticker for charts · select an industry to explore leaders</span>
+              <span>Use the arrow key to save · number keys add to watchlists</span>
           </div>
         </section>
 
@@ -931,9 +930,9 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
             </>
           ) : (
             <div className="screener-detail-empty">
-              <span className="eyebrow">QUICK JUDGEMENT</span>
-              <h2>Select a stock</h2>
-              <p>Click any row to inspect its key scores and fundamentals. Double-click the stock to open its full chart workspace.</p>
+<span className="eyebrow">RESEARCH PREVIEW</span>
+          <h2>Choose a ticker</h2>
+          <p>Select a row to review its signals and fundamentals. Open the ticker when you are ready for the full chart workspace.</p>
               <div className="screener-detail-empty-count">
                 <strong>{records.length.toLocaleString("en-IN")}</strong>
                 <span>stocks in local universe</span>
@@ -954,8 +953,8 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           <section className="screener-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="screener-settings-title">
             <header className="screener-settings-header">
               <div>
-                <span className="eyebrow">SCHCAT / STOCKS</span>
-                <h2 id="screener-settings-title">Settings & Library</h2>
+<span className="eyebrow">SCREENER WORKSPACE</span>
+          <h2 id="screener-settings-title">Filters & saved views</h2>
               </div>
               <button type="button" className="screener-icon-button" aria-label="Close settings" autoFocus onClick={() => setSettingsOpen(false)}>×</button>
             </header>
@@ -981,8 +980,8 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
               {settingsSection === "filters" && (
                 <>
                   <div className="screener-settings-intro">
-                    <strong>Universe filters</strong>
-                    <span>Min/max limits are inclusive. Changes apply immediately to the stock table.</span>
+<strong>Build your screen</strong>
+                <span>Set inclusive ranges to narrow the universe. Results update as you work.</span>
                   </div>
                   <div className="screener-filter-grid screener-settings-basic-filters">
                     <label className="screener-field">
@@ -1001,7 +1000,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
                     </label>
                   </div>
                   <div className="screener-range-heading">
-                    <div><strong>Advanced filters</strong><p>Leave a field empty to ignore that limit.</p></div>
+                    <div><strong>Signal ranges</strong><p>Leave a range blank when that signal is not part of your thesis.</p></div>
                     <span className="screener-muted">* Undated reference metrics</span>
                   </div>
                   <div className="screener-range-grid">
@@ -1026,8 +1025,8 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
               {settingsSection === "queries" && (
                 <>
                   <div className="screener-settings-intro">
-                    <strong>Saved queries</strong>
-                    <span>Choose several in the toolbar to apply their symbol sets with AND logic.</span>
+<strong>Saved screens</strong>
+                <span>Save repeatable symbol sets and combine them from the toolbar.</span>
                   </div>
                   <form className="screener-query-form" onSubmit={createQuery}>
                     <label className="screener-field">
@@ -1063,8 +1062,8 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
               {settingsSection === "watchlists" && (
                 <>
                   <div className="screener-settings-intro">
-                    <strong>Watchlists and local backup</strong>
-                    <span>Data stays in this browser. Use exports for a portable backup.</span>
+<strong>Watchlists & backup</strong>
+                <span>Your library stays in this browser. Export a copy whenever you need one.</span>
                   </div>
                   <div className="screener-library-actions">
                     <button type="button" className="screener-button secondary" onClick={() => { const blob = new Blob([serializeScreenerLibrary(library)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "schcat-screener-backup.json"; a.click(); URL.revokeObjectURL(url); }}>Export JSON</button>
@@ -1154,8 +1153,8 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
               {settingsSection === "data" && (
                 <>
                   <div className="screener-settings-intro">
-                    <strong>Data refresh</strong>
-                    <span>Refresh live MarketSmith ranking fields and recalculate the legacy NikScore. These actions do not change the static source workbook.</span>
+<strong>Refresh market data</strong>
+                <span>Pull the latest MarketSmith rankings and recalculate NikScore without changing the reference universe.</span>
                   </div>
                   <div className="screener-data-actions">
                     <button type="button" className="screener-button" onClick={() => void refreshMarketSmithData()} disabled={loading || marketSmithRefresh.status === "loading" || records.length === 0}>
