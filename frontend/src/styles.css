@@ -1617,7 +1617,8 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   align-items: center;
   gap: 7px;
   min-width: 170px;
-  flex: 1 1 190px;
+  flex: 0 1 220px;
+  max-width: 220px;
   height: 31px;
   padding: 0 9px;
   border: 1px solid #344256;
@@ -1732,15 +1733,16 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   font-size: 10px;
 }
 .screener-status-strip {
-  min-height: 25px;
+  min-height: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 4px 16px;
-  padding: 4px 3px 5px;
+  gap: 2px 12px;
+  padding: 1px 3px 2px;
   color: #7f8da1;
   font-size: 9px;
+  line-height: 1.2;
 }
 .screener-inline-error { color: #e5a0a0; }
 .screener-main-workspace {
@@ -1762,6 +1764,22 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   border-radius: 6px;
 }
 .screener-main-workspace .screener-table-top { flex: 0 0 auto; padding: 10px 12px 8px; align-items: center; }
+/* The screener command bar belongs to the left table panel; the detail panel starts alongside it. */
+.screener-table-panel > .screener-commandbar {
+  flex: 0 0 auto;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #273344;
+  border-radius: 0;
+  background: #101824;
+}
+.screener-table-panel > .screener-status-strip {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 2px 10px;
+  border-bottom: 1px solid #263243;
+}
+
 .screener-main-workspace .screener-table-top h2 { margin-top: 2px; font-size: 13px; }
 .screener-main-workspace .screener-pagination { gap: 6px; }
 .screener-main-workspace .screener-pagination .screener-button { min-width: 28px; min-height: 26px; padding: 0 7px; }
@@ -1953,6 +1971,7 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
 @media (max-width: 1050px) {
   .screener-main-workspace { grid-template-columns: minmax(0, 1fr) 275px; }
   .screener-commandbar { gap: 6px; }
+  .screener-command-search { flex-basis: 190px; max-width: 190px; }
 }
 @media (max-width: 820px) {
   .screener-main-workspace { height: auto; min-height: 0; grid-template-columns: 1fr; }
@@ -1965,7 +1984,7 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   .screener-desktop-content { padding: 8px 7px 12px; }
   .screener-commandbar { padding: 6px; gap: 6px; }
   .screener-commandbar-main { flex: 1 1 100%; justify-content: space-between; }
-  .screener-command-search { flex-basis: 100%; }
+  .screener-command-search { flex-basis: 100%; max-width: none; }
   .screener-command-dropdown { flex: 1 1 auto; }
   .screener-command-dropdown > .screener-button { width: 100%; }
   .screener-watchlist-command { flex: 1 1 100%; }
@@ -2835,7 +2854,7 @@ body::-webkit-scrollbar-corner,
    Below 1240px the panels stack instead of squeezing the table and charts. */
 @media (min-width: 1241px) {
   .screener-main-workspace {
-    grid-template-columns: minmax(0, 57fr) minmax(520px, 43fr);
+    grid-template-columns: minmax(0, 55fr) minmax(520px, 45fr);
     gap: 12px;
   }
 }
@@ -3253,30 +3272,22 @@ body { background: #0b0f14; }
   background: #12171d;
   box-shadow: 0 5px 18px #0000002b;
 }
-.finviz-brand-row { min-height: 58px; display: flex; align-items: center; gap: 24px; padding: 0 24px; }
-.desktop-brand { gap: 10px; }
+.finviz-brand-row { min-height: 52px; display: flex; align-items: stretch; gap: 16px; padding: 0 16px; }
+.desktop-brand { flex: 0 0 auto; gap: 10px; }
 .brand-mark { width: 31px; height: 31px; border: 1px solid #56b9ad; border-radius: 4px; background: #17312f; color: #7bd2c5; box-shadow: none; }
 .desktop-brand-copy strong { color: #f0f3f5; font-size: 14px; letter-spacing: .4px; }
 .desktop-brand-copy small { color: #6d7b87; font-size: 7px; letter-spacing: 1.6px; }
-.finviz-search { position: relative; width: min(360px, 38vw); }
-.finviz-search input { width: 100%; height: 31px; padding: 0 32px 0 11px; border: 1px solid #35404b; border-radius: 3px; background: #0c1116; color: #e3e8eb; outline: none; font: inherit; font-size: 11px; }
-.finviz-search input:focus { border-color: #56b9ad; box-shadow: 0 0 0 2px #56b9ad1c; }
-.finviz-search > span { position: absolute; right: 10px; top: 4px; color: #80909b; font-size: 19px; }
-.desktop-header-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; color: #92a0ab; font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
+.desktop-header-meta { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; color: #92a0ab; font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
 .desktop-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 8px #5fc39e99; }
 .finviz-date { color: #56636f; margin-left: 10px; }
-.finviz-market-strip { display: flex; gap: 24px; align-items: center; min-height: 31px; padding: 0 24px; border-top: 1px solid #273039; border-bottom: 1px solid #273039; background: #0e1318; color: #aeb9c2; font-size: 9px; white-space: nowrap; overflow: auto; }
-.finviz-market-strip b { color: #d3d9dd; font-size: 8px; letter-spacing: .5px; }
-.finviz-market-strip em { color: #aeb9c2; font-style: normal; margin-left: 7px; }
-.finviz-market-strip i { color: var(--positive); font-style: normal; margin-left: 5px; }
-.finviz-strip-note { margin-left: auto; color: #62717c; letter-spacing: 1.1px; }
-.desktop-tabs { display: flex; gap: 0; padding: 0 16px; background: #151b21; }
-.desktop-tab { position: relative; min-height: 36px; padding: 0 15px; border: 0; border-right: 1px solid #252e37; border-radius: 0; color: #8e9ba5; background: transparent; font-size: 10px; font-weight: 700; letter-spacing: .3px; }
+.desktop-tabs { flex: 1 1 auto; min-width: 0; min-height: 52px; display: flex; align-items: stretch; gap: 0; padding: 0 4px; background: transparent; overflow-x: auto; scrollbar-width: none; }
+.desktop-tab { position: relative; flex: 0 0 auto; min-height: 52px; padding: 0 10px; border: 0; border-right: 1px solid #252e37; border-radius: 0; color: #8e9ba5; background: transparent; font-size: 10px; font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
 .desktop-tab:hover { color: #e2e8eb; background: #1c252c; }
 .desktop-tab.active { color: #7bd2c5; background: #1a2529; box-shadow: inset 0 -2px #55b9ad; }
 .desktop-setup-tab { display: inline-flex; align-items: center; text-decoration: none; }
 .desktop-tab-panel { background: #0b0f14; }
 .screener-content, .desktop-tab-panel .workspace-content, .desktop-tab-panel .analysis-content, .desktop-tab-panel .industry-content, .desktop-tab-panel .research-content, .desktop-tab-panel .pulse-content, .desktop-tab-panel .portfolio-content { max-width: 1540px; padding-top: 28px; }
+.screener-desktop-content { padding-top: 2px; }
 .eyebrow { color: #56b9ad; letter-spacing: 1.6px; }
 h1 { color: #f0f3f5; letter-spacing: -1.2px; }
 .intro, .pulse-heading p, .research-heading p, .portfolio-heading p { color: #87939d; }
@@ -3295,10 +3306,8 @@ h1 { color: #f0f3f5; letter-spacing: -1.2px; }
 .page-footer { color: #5e6a74; }
 @media (max-width: 760px) {
   .finviz-brand-row { gap: 12px; padding: 0 12px; }
-  .finviz-search { width: 100%; }
   .desktop-header-meta { display: none; }
-  .desktop-tabs { padding: 0 4px; overflow-x: auto; }
-  .desktop-tab { padding: 0 11px; }
-  .finviz-market-strip { padding: 0 12px; gap: 16px; }
-  .finviz-strip-note { display: none; }
+  .finviz-brand-row { gap: 10px; }
+  .desktop-tabs { padding: 0; }
+  .desktop-tab { padding: 0 9px; }
 }
