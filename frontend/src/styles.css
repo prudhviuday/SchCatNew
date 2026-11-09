@@ -2828,3 +2828,138 @@ body::-webkit-scrollbar-corner,
   line-height: 1.15;
   letter-spacing: .15px;
 }
+
+
+/* Stocks workspace v3: give live company history a full decision-panel width. */
+/* On wide screens the history workspace gets 43% of the available width.
+   Below 1240px the panels stack instead of squeezing the table and charts. */
+@media (min-width: 1241px) {
+  .screener-main-workspace {
+    grid-template-columns: minmax(0, 57fr) minmax(520px, 43fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 1240px) {
+  .screener-main-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+  }
+  .screener-main-workspace .screener-table-panel {
+    min-height: 520px;
+  }
+  .screener-main-workspace .screener-table-wrap {
+    max-height: 64vh;
+  }
+  .screener-detail-panel {
+    max-height: 78vh;
+  }
+}
+
+/* Remove the unused identity-cell gutter and give the score columns the room. */
+.screener-main-workspace .screener-table th[data-column="symbol"],
+.screener-main-workspace .screener-table td[data-column="symbol"] { width: 21% !important; }
+.screener-main-workspace .screener-table th[data-column="groupRank"],
+.screener-main-workspace .screener-table td[data-column="groupRank"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="rs"],
+.screener-main-workspace .screener-table td[data-column="rs"] { width: 5.5% !important; }
+.screener-main-workspace .screener-table th[data-column="epsRank"],
+.screener-main-workspace .screener-table td[data-column="epsRank"] { width: 6.5% !important; }
+.screener-main-workspace .screener-table th[data-column="masterScore"],
+.screener-main-workspace .screener-table td[data-column="masterScore"] { width: 6.5% !important; }
+.screener-main-workspace .screener-table th[data-column="accDis"],
+.screener-main-workspace .screener-table td[data-column="accDis"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="pe"],
+.screener-main-workspace .screener-table td[data-column="pe"] { width: 5.5% !important; }
+.screener-main-workspace .screener-table th[data-column="peg"],
+.screener-main-workspace .screener-table td[data-column="peg"] { width: 5.5% !important; }
+.screener-main-workspace .screener-table th[data-column="fScore"],
+.screener-main-workspace .screener-table td[data-column="fScore"] { width: 5.5% !important; }
+.screener-main-workspace .screener-table th[data-column="marketCap"],
+.screener-main-workspace .screener-table td[data-column="marketCap"] { width: 8.5% !important; }
+.screener-main-workspace .screener-table th[data-column="pb"],
+.screener-main-workspace .screener-table td[data-column="pb"] { width: 5.5% !important; }
+.screener-main-workspace .screener-table th[data-column="roce"],
+.screener-main-workspace .screener-table td[data-column="roce"] { width: 6.5% !important; }
+.screener-main-workspace .screener-table th[data-column="nikScore"],
+.screener-main-workspace .screener-table td[data-column="nikScore"] { width: 6.5% !important; }
+.screener-main-workspace .screener-table th[data-column="save"],
+.screener-main-workspace .screener-table td[data-column="save"] { width: 5.5% !important; }
+
+/* Expand the history content so the three charts are useful at a glance. */
+.screener-detail-panel {
+  padding: 15px 16px;
+}
+.screener-detail-heading h2 {
+  font-size: 22px;
+}
+.screener-detail-primary {
+  gap: 9px;
+  margin: 14px 0;
+}
+.screener-detail-primary > div {
+  padding: 10px 9px;
+}
+.screener-detail-primary span,
+.screener-detail-metric span {
+  font-size: 9px;
+}
+.screener-detail-primary strong {
+  font-size: 12px;
+}
+.screener-detail-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 8px;
+}
+.screener-detail-metric {
+  padding: 8px 9px;
+}
+.screener-detail-metric strong {
+  font-size: 11px;
+}
+.screener-detail-graphs {
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.screener-detail-graphs-heading > strong {
+  font-size: 12px;
+}
+.screener-detail-research-message {
+  margin: 7px 0 10px;
+  font-size: 9px;
+  line-height: 1.5;
+}
+.screener-detail-graph {
+  margin-top: 10px;
+  padding: 10px 12px 8px;
+}
+.screener-detail-graph-title strong {
+  font-size: 10px;
+}
+.screener-detail-graph-title span {
+  font-size: 8px;
+}
+.screener-detail-graph .right-panel-chart {
+  padding: 7px 8px 6px;
+}
+.screener-detail-graph .right-panel-chart svg {
+  max-height: 205px;
+}
+.screener-detail-graph .right-panel-chart-legend {
+  gap: 7px 11px;
+  font-size: 8px;
+}
+.screener-detail-graph .workspace-chart-note {
+  margin: 6px 0 3px;
+  font-size: 8px;
+}
+.screener-detail-research-updated {
+  font-size: 8px;
+}
+
+@media (max-width: 540px) {
+  .screener-detail-panel { padding: 12px; }
+  .screener-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .screener-detail-graph .right-panel-chart svg { max-height: 175px; }
+}
