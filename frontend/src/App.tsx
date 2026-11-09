@@ -83,6 +83,11 @@ function App() {
               {tab.label}
             </button>
           ))}
+          <a
+            className="desktop-tab desktop-setup-tab"
+            href="/?diagnostics=providers"
+            title="Configure provider IDs and your MarketSmith session"
+          >⚙ Setup</a>
         </nav>
 
         <div className="desktop-header-meta">
