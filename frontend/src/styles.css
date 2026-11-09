@@ -2837,7 +2837,7 @@ body::-webkit-scrollbar-corner,
    Below 1240px the panels stack instead of squeezing the table and charts. */
 @media (min-width: 1241px) {
   .screener-main-workspace {
-    grid-template-columns: minmax(0, 57fr) minmax(520px, 43fr);
+    grid-template-columns: minmax(0, 55fr) minmax(520px, 45fr);
     gap: 12px;
   }
 }
@@ -3255,19 +3255,16 @@ body { background: #0b0f14; }
   background: #12171d;
   box-shadow: 0 5px 18px #0000002b;
 }
-.finviz-brand-row { min-height: 58px; display: flex; align-items: center; gap: 24px; padding: 0 24px; }
-.desktop-brand { gap: 10px; }
+.finviz-brand-row { min-height: 58px; display: flex; align-items: center; gap: 20px; padding: 0 16px; }
+.desktop-brand { flex: 0 0 auto; gap: 10px; }
 .brand-mark { width: 31px; height: 31px; border: 1px solid #56b9ad; border-radius: 4px; background: #17312f; color: #7bd2c5; box-shadow: none; }
 .desktop-brand-copy strong { color: #f0f3f5; font-size: 14px; letter-spacing: .4px; }
 .desktop-brand-copy small { color: #6d7b87; font-size: 7px; letter-spacing: 1.6px; }
-.finviz-search { position: relative; width: min(360px, 38vw); }
-.finviz-search input { width: 100%; height: 31px; padding: 0 32px 0 11px; border: 1px solid #35404b; border-radius: 3px; background: #0c1116; color: #e3e8eb; outline: none; font: inherit; font-size: 11px; }
-.finviz-search input:focus { border-color: #56b9ad; box-shadow: 0 0 0 2px #56b9ad1c; }
-.finviz-search > span { position: absolute; right: 10px; top: 4px; color: #80909b; font-size: 19px; }
 .desktop-header-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; color: #92a0ab; font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
 .desktop-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 8px #5fc39e99; }
 .finviz-date { color: #56636f; margin-left: 10px; }
-.finviz-market-strip { display: flex; gap: 24px; align-items: center; min-height: 31px; padding: 0 24px; border-top: 1px solid #273039; border-bottom: 1px solid #273039; background: #0e1318; color: #aeb9c2; font-size: 9px; white-space: nowrap; overflow: auto; }
+.finviz-market-strip { flex: 1 1 auto; min-width: 0; display: flex; justify-content: space-between; gap: clamp(10px, 1.5vw, 22px); align-items: center; min-height: 31px; padding: 0; border: 0; background: transparent; color: #aeb9c2; font-size: 9px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.finviz-market-strip::-webkit-scrollbar { display: none; }
 .finviz-market-strip b { color: #d3d9dd; font-size: 8px; letter-spacing: .5px; }
 .finviz-market-strip em { color: #aeb9c2; font-style: normal; margin-left: 7px; }
 .finviz-market-strip i { color: var(--positive); font-style: normal; margin-left: 5px; }
@@ -3297,7 +3294,7 @@ h1 { color: #f0f3f5; letter-spacing: -1.2px; }
 .page-footer { color: #5e6a74; }
 @media (max-width: 760px) {
   .finviz-brand-row { gap: 12px; padding: 0 12px; }
-  .finviz-search { width: 100%; }
+  .finviz-market-strip { justify-content: flex-start; gap: 14px; }
   .desktop-header-meta { display: none; }
   .desktop-tabs { padding: 0 4px; overflow-x: auto; }
   .desktop-tab { padding: 0 11px; }
