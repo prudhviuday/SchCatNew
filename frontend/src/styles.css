@@ -2587,3 +2587,234 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
 .screener-detail-note {
   color: #91a3b9;
 }
+
+
+/* Stocks grid v2: combine symbol + industry into a readable two-line identity cell. */
+.screener-main-workspace .screener-table th[data-column="industry"],
+.screener-main-workspace .screener-table td[data-column="industry"] {
+  display: none !important;
+}
+.screener-main-workspace .screener-table th[data-column="symbol"],
+.screener-main-workspace .screener-table td[data-column="symbol"] {
+  width: 27% !important;
+}
+.screener-main-workspace .screener-table th[data-column="groupRank"],
+.screener-main-workspace .screener-table td[data-column="groupRank"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="rs"],
+.screener-main-workspace .screener-table td[data-column="rs"] { width: 5% !important; }
+.screener-main-workspace .screener-table th[data-column="epsRank"],
+.screener-main-workspace .screener-table td[data-column="epsRank"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="masterScore"],
+.screener-main-workspace .screener-table td[data-column="masterScore"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="accDis"],
+.screener-main-workspace .screener-table td[data-column="accDis"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="pe"],
+.screener-main-workspace .screener-table td[data-column="pe"] { width: 5% !important; }
+.screener-main-workspace .screener-table th[data-column="peg"],
+.screener-main-workspace .screener-table td[data-column="peg"] { width: 5% !important; }
+.screener-main-workspace .screener-table th[data-column="fScore"],
+.screener-main-workspace .screener-table td[data-column="fScore"] { width: 5% !important; }
+.screener-main-workspace .screener-table th[data-column="marketCap"],
+.screener-main-workspace .screener-table td[data-column="marketCap"] { width: 8% !important; }
+.screener-main-workspace .screener-table th[data-column="pb"],
+.screener-main-workspace .screener-table td[data-column="pb"] { width: 5% !important; }
+.screener-main-workspace .screener-table th[data-column="roce"],
+.screener-main-workspace .screener-table td[data-column="roce"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="nikScore"],
+.screener-main-workspace .screener-table td[data-column="nikScore"] { width: 6% !important; }
+.screener-main-workspace .screener-table th[data-column="save"],
+.screener-main-workspace .screener-table td[data-column="save"] { width: 4% !important; }
+
+.screener-main-workspace .screener-table th[data-column="symbol"] button {
+  justify-content: flex-start;
+  padding-left: 9px;
+  color: #d2deed;
+  font-size: 11.5px;
+  text-align: left;
+}
+.screener-main-workspace .screener-table td[data-column="symbol"] {
+  padding: 4px 8px;
+  vertical-align: middle;
+  white-space: normal;
+}
+.screener-stock-identity {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  justify-items: start;
+}
+.screener-stock-identity .screener-symbol {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  color: #f1c486;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: .15px;
+  text-align: left;
+  white-space: nowrap;
+}
+.screener-stock-identity .screener-symbol:hover {
+  color: #ffe1b6;
+}
+.screener-industry-inline {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #aabbd0;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 1.15;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.screener-industry-inline:hover {
+  color: #efbd80;
+  text-decoration: underline;
+}
+
+/* Use the cell area: larger numeric labels, centred vertically, without padded empty blocks. */
+.screener-main-workspace .screener-table th {
+  height: 39px;
+}
+.screener-main-workspace .screener-table th button {
+  color: #c0cee0;
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1.08;
+}
+.screener-main-workspace .screener-table td {
+  height: 37px;
+  padding: 4px 3px;
+  vertical-align: middle;
+  color: #edf3fb;
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.15;
+}
+.screener-main-workspace .screener-table td.numeric {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.15px;
+}
+.screener-main-workspace .screener-table td[data-column="accDis"] {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+.screener-main-workspace .screener-table td[data-column="save"] .screener-industry {
+  width: 100%;
+  padding: 2px 0;
+  font-size: 10px;
+}
+.screener-main-workspace .screener-table tbody tr:hover {
+  background: #182535;
+}
+.screener-main-workspace .screener-table tbody tr.selected {
+  background: #2b241c;
+}
+
+/* Explicit dark native scrollbar palette plus Chromium scrollbar parts. */
+:root {
+  color-scheme: dark;
+}
+html,
+body,
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: #53677f #0b121b !important;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 7px !important;
+  height: 7px !important;
+  background: #0b121b !important;
+}
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: #0b121b !important;
+  border-radius: 8px !important;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background-color: #53677f !important;
+  border: 1px solid #0b121b !important;
+  border-radius: 8px !important;
+}
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #c58d50 !important;
+}
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner {
+  background: #0b121b !important;
+}
+
+/* Ensure each nested scroll surface uses the same dark palette. */
+.screener-main-workspace .screener-table-wrap,
+.screener-detail-panel,
+.analysis-gallery-scroll,
+.industry-list-panel,
+.research-table-wrap,
+.research-chart-scroll,
+.pulse-table-scroll,
+.portfolio-table-scroll,
+.screener-settings-body,
+.desktop-tabs {
+  scrollbar-width: thin !important;
+  scrollbar-color: #53677f #0b121b !important;
+}
+.screener-main-workspace .screener-table-wrap::-webkit-scrollbar,
+.screener-detail-panel::-webkit-scrollbar,
+.analysis-gallery-scroll::-webkit-scrollbar,
+.industry-list-panel::-webkit-scrollbar,
+.research-table-wrap::-webkit-scrollbar,
+.research-chart-scroll::-webkit-scrollbar,
+.pulse-table-scroll::-webkit-scrollbar,
+.portfolio-table-scroll::-webkit-scrollbar,
+.screener-settings-body::-webkit-scrollbar,
+.desktop-tabs::-webkit-scrollbar {
+  width: 7px !important;
+  height: 7px !important;
+  background: #0b121b !important;
+}
+.screener-main-workspace .screener-table-wrap::-webkit-scrollbar-track,
+.screener-detail-panel::-webkit-scrollbar-track,
+.analysis-gallery-scroll::-webkit-scrollbar-track,
+.industry-list-panel::-webkit-scrollbar-track,
+.research-table-wrap::-webkit-scrollbar-track,
+.research-chart-scroll::-webkit-scrollbar-track,
+.pulse-table-scroll::-webkit-scrollbar-track,
+.portfolio-table-scroll::-webkit-scrollbar-track,
+.screener-settings-body::-webkit-scrollbar-track,
+.desktop-tabs::-webkit-scrollbar-track {
+  background: #0b121b !important;
+}
+.screener-main-workspace .screener-table-wrap::-webkit-scrollbar-thumb,
+.screener-detail-panel::-webkit-scrollbar-thumb,
+.analysis-gallery-scroll::-webkit-scrollbar-thumb,
+.industry-list-panel::-webkit-scrollbar-thumb,
+.research-table-wrap::-webkit-scrollbar-thumb,
+.research-chart-scroll::-webkit-scrollbar-thumb,
+.pulse-table-scroll::-webkit-scrollbar-thumb,
+.portfolio-table-scroll::-webkit-scrollbar-thumb,
+.screener-settings-body::-webkit-scrollbar-thumb,
+.desktop-tabs::-webkit-scrollbar-thumb {
+  background-color: #53677f !important;
+  border: 1px solid #0b121b !important;
+  border-radius: 8px !important;
+}
