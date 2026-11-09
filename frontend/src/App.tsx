@@ -71,23 +71,6 @@ function App() {
               <small>MARKET ANALYZER</small>
             </span>
           </button>
-          <label className="finviz-search">
-            <span className="sr-only">Search ticker or company</span>
-            <input type="search" placeholder="Search ticker, company, or sector" />
-            <span>⌕</span>
-          </label>
-          <div className="desktop-header-meta">
-            <span className="desktop-status-dot" />
-            <span>MARKET OPEN</span>
-            <span className="finviz-date">09 NOV 2026</span>
-          </div>
-        </div>
-        <div className="finviz-market-strip" aria-label="Market overview">
-          <span><b>NIFTY 50</b> <em>25,843.15</em> <i>+0.42%</i></span>
-          <span><b>SENSEX</b> <em>84,565.43</em> <i>+0.31%</i></span>
-          <span><b>BANK NIFTY</b> <em>58,941.20</em> <i>-0.18%</i></span>
-          <span className="finviz-strip-note">LIVE DATA · INDIA</span>
-        </div>
         <nav className="desktop-tabs" aria-label="Main workspace tabs">
           {WORKSPACE_TABS.map((tab) => (
             <button
@@ -106,6 +89,12 @@ function App() {
             title="Configure provider IDs and your MarketSmith session"
           >Setup</a>
         </nav>
+          <div className="desktop-header-meta">
+            <span className="desktop-status-dot" />
+            <span>MARKET OPEN</span>
+            <span className="finviz-date">09 NOV 2026</span>
+          </div>
+        </div>
       </header>
 
       <section className="main-panel desktop-tab-panel">
