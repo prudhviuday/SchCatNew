@@ -3255,27 +3255,22 @@ body { background: #0b0f14; }
   background: #12171d;
   box-shadow: 0 5px 18px #0000002b;
 }
-.finviz-brand-row { min-height: 58px; display: flex; align-items: center; gap: 20px; padding: 0 16px; }
+.finviz-brand-row { min-height: 52px; display: flex; align-items: stretch; gap: 16px; padding: 0 16px; }
 .desktop-brand { flex: 0 0 auto; gap: 10px; }
 .brand-mark { width: 31px; height: 31px; border: 1px solid #56b9ad; border-radius: 4px; background: #17312f; color: #7bd2c5; box-shadow: none; }
 .desktop-brand-copy strong { color: #f0f3f5; font-size: 14px; letter-spacing: .4px; }
 .desktop-brand-copy small { color: #6d7b87; font-size: 7px; letter-spacing: 1.6px; }
-.desktop-header-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; color: #92a0ab; font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
+.desktop-header-meta { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; color: #92a0ab; font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
 .desktop-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 8px #5fc39e99; }
 .finviz-date { color: #56636f; margin-left: 10px; }
-.finviz-market-strip { flex: 1 1 auto; min-width: 0; display: flex; justify-content: space-between; gap: clamp(10px, 1.5vw, 22px); align-items: center; min-height: 31px; padding: 0; border: 0; background: transparent; color: #aeb9c2; font-size: 9px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
-.finviz-market-strip::-webkit-scrollbar { display: none; }
-.finviz-market-strip b { color: #d3d9dd; font-size: 8px; letter-spacing: .5px; }
-.finviz-market-strip em { color: #aeb9c2; font-style: normal; margin-left: 7px; }
-.finviz-market-strip i { color: var(--positive); font-style: normal; margin-left: 5px; }
-.finviz-strip-note { margin-left: auto; color: #62717c; letter-spacing: 1.1px; }
-.desktop-tabs { display: flex; gap: 0; padding: 0 16px; background: #151b21; }
-.desktop-tab { position: relative; min-height: 36px; padding: 0 15px; border: 0; border-right: 1px solid #252e37; border-radius: 0; color: #8e9ba5; background: transparent; font-size: 10px; font-weight: 700; letter-spacing: .3px; }
+.desktop-tabs { flex: 1 1 auto; min-width: 0; min-height: 52px; display: flex; align-items: stretch; gap: 0; padding: 0 4px; background: transparent; overflow-x: auto; scrollbar-width: none; }
+.desktop-tab { position: relative; flex: 0 0 auto; min-height: 52px; padding: 0 10px; border: 0; border-right: 1px solid #252e37; border-radius: 0; color: #8e9ba5; background: transparent; font-size: 10px; font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
 .desktop-tab:hover { color: #e2e8eb; background: #1c252c; }
 .desktop-tab.active { color: #7bd2c5; background: #1a2529; box-shadow: inset 0 -2px #55b9ad; }
 .desktop-setup-tab { display: inline-flex; align-items: center; text-decoration: none; }
 .desktop-tab-panel { background: #0b0f14; }
 .screener-content, .desktop-tab-panel .workspace-content, .desktop-tab-panel .analysis-content, .desktop-tab-panel .industry-content, .desktop-tab-panel .research-content, .desktop-tab-panel .pulse-content, .desktop-tab-panel .portfolio-content { max-width: 1540px; padding-top: 28px; }
+.screener-desktop-content { padding-top: 8px; }
 .eyebrow { color: #56b9ad; letter-spacing: 1.6px; }
 h1 { color: #f0f3f5; letter-spacing: -1.2px; }
 .intro, .pulse-heading p, .research-heading p, .portfolio-heading p { color: #87939d; }
@@ -3294,10 +3289,8 @@ h1 { color: #f0f3f5; letter-spacing: -1.2px; }
 .page-footer { color: #5e6a74; }
 @media (max-width: 760px) {
   .finviz-brand-row { gap: 12px; padding: 0 12px; }
-  .finviz-market-strip { justify-content: flex-start; gap: 14px; }
   .desktop-header-meta { display: none; }
-  .desktop-tabs { padding: 0 4px; overflow-x: auto; }
-  .desktop-tab { padding: 0 11px; }
-  .finviz-market-strip { padding: 0 12px; gap: 16px; }
-  .finviz-strip-note { display: none; }
+  .finviz-brand-row { gap: 10px; }
+  .desktop-tabs { padding: 0; }
+  .desktop-tab { padding: 0 9px; }
 }
