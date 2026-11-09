@@ -3226,3 +3226,79 @@ body::-webkit-scrollbar-corner,
     max-height: 145px;
   }
 }
+
+/* Finviz-inspired market terminal skin */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+:root {
+  --bg: #0b0f14;
+  --panel: #11161d;
+  --panel-soft: #171d25;
+  --border: #2b333d;
+  --muted: #7f8a96;
+  --text: #e5e9ed;
+  --accent: #4db3a7;
+  --positive: #5fc39e;
+  --negative: #e07c86;
+}
+body { background: #0b0f14; }
+.terminal-shell { background: #0b0f14; }
+.desktop-workspace-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: block;
+  min-height: 0;
+  padding: 0;
+  border-bottom: 1px solid #303942;
+  background: #12171d;
+  box-shadow: 0 5px 18px #0000002b;
+}
+.finviz-brand-row { min-height: 58px; display: flex; align-items: center; gap: 24px; padding: 0 24px; }
+.desktop-brand { gap: 10px; }
+.brand-mark { width: 31px; height: 31px; border: 1px solid #56b9ad; border-radius: 4px; background: #17312f; color: #7bd2c5; box-shadow: none; }
+.desktop-brand-copy strong { color: #f0f3f5; font-size: 14px; letter-spacing: .4px; }
+.desktop-brand-copy small { color: #6d7b87; font-size: 7px; letter-spacing: 1.6px; }
+.finviz-search { position: relative; width: min(360px, 38vw); }
+.finviz-search input { width: 100%; height: 31px; padding: 0 32px 0 11px; border: 1px solid #35404b; border-radius: 3px; background: #0c1116; color: #e3e8eb; outline: none; font: inherit; font-size: 11px; }
+.finviz-search input:focus { border-color: #56b9ad; box-shadow: 0 0 0 2px #56b9ad1c; }
+.finviz-search > span { position: absolute; right: 10px; top: 4px; color: #80909b; font-size: 19px; }
+.desktop-header-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; color: #92a0ab; font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
+.desktop-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 8px #5fc39e99; }
+.finviz-date { color: #56636f; margin-left: 10px; }
+.finviz-market-strip { display: flex; gap: 24px; align-items: center; min-height: 31px; padding: 0 24px; border-top: 1px solid #273039; border-bottom: 1px solid #273039; background: #0e1318; color: #aeb9c2; font-size: 9px; white-space: nowrap; overflow: auto; }
+.finviz-market-strip b { color: #d3d9dd; font-size: 8px; letter-spacing: .5px; }
+.finviz-market-strip em { color: #aeb9c2; font-style: normal; margin-left: 7px; }
+.finviz-market-strip i { color: var(--positive); font-style: normal; margin-left: 5px; }
+.finviz-strip-note { margin-left: auto; color: #62717c; letter-spacing: 1.1px; }
+.desktop-tabs { display: flex; gap: 0; padding: 0 16px; background: #151b21; }
+.desktop-tab { position: relative; min-height: 36px; padding: 0 15px; border: 0; border-right: 1px solid #252e37; border-radius: 0; color: #8e9ba5; background: transparent; font-size: 10px; font-weight: 700; letter-spacing: .3px; }
+.desktop-tab:hover { color: #e2e8eb; background: #1c252c; }
+.desktop-tab.active { color: #7bd2c5; background: #1a2529; box-shadow: inset 0 -2px #55b9ad; }
+.desktop-setup-tab { display: inline-flex; align-items: center; text-decoration: none; }
+.desktop-tab-panel { background: #0b0f14; }
+.screener-content, .desktop-tab-panel .workspace-content, .desktop-tab-panel .analysis-content, .desktop-tab-panel .industry-content, .desktop-tab-panel .research-content, .desktop-tab-panel .pulse-content, .desktop-tab-panel .portfolio-content { max-width: 1540px; padding-top: 28px; }
+.eyebrow { color: #56b9ad; letter-spacing: 1.6px; }
+h1 { color: #f0f3f5; letter-spacing: -1.2px; }
+.intro, .pulse-heading p, .research-heading p, .portfolio-heading p { color: #87939d; }
+.screener-panel, .screener-table-panel, .pulse-table-panel, .workspace-panel, .analysis-panel, .industry-panel, .research-panel, .portfolio-panel { border-color: #2a333c; border-radius: 4px; background: #11161d; box-shadow: 0 1px 0 #ffffff05; }
+.screener-field input, .screener-field select, .screener-range input, .research-input, .portfolio-input { border-color: #34404a; border-radius: 3px; background: #0c1116; }
+.screener-field input:focus, .screener-field select:focus, .screener-range input:focus { border-color: #56b9ad; }
+.screener-button, .pulse-refresh-button, .research-button, .portfolio-button { border-color: #398f86; border-radius: 3px; background: #17423e; color: #8edbd0; }
+.screener-button.secondary { border-color: #3a4651; background: #1a222a; color: #aab6bf; }
+.screener-table th { background: #1a222a; border-color: #303b45; }
+.screener-table th button { color: #9eabb5; }
+.screener-table td { border-color: #222b33; color: #b9c3ca; }
+.screener-table tbody tr:hover { background: #18232a; }
+.screener-symbol { color: #74c9bc; }
+.screener-industry { color: #aeb8c0; }
+.screener-query-chip { border-color: #35414c; border-radius: 3px; background: #182129; }
+.page-footer { color: #5e6a74; }
+@media (max-width: 760px) {
+  .finviz-brand-row { gap: 12px; padding: 0 12px; }
+  .finviz-search { width: 100%; }
+  .desktop-header-meta { display: none; }
+  .desktop-tabs { padding: 0 4px; overflow-x: auto; }
+  .desktop-tab { padding: 0 11px; }
+  .finviz-market-strip { padding: 0 12px; gap: 16px; }
+  .finviz-strip-note { display: none; }
+}
