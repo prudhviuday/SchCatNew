@@ -62,6 +62,7 @@ const RANGE_LABELS: Record<ScreenerNumericField, string> = {
 };
 
 const SCREENER_HEADER_LINES: Partial<Record<ScreenerSortField, readonly string[]>> = {
+  symbol: ["Stock", "Industry"],
   groupRank: ["Group", "Rank"],
   epsRank: ["EPS", "Rank"],
   masterScore: ["Master", "Score"],
@@ -821,7 +822,19 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
                     {SCREENER_COLUMNS.map((column) => (
                       <td data-column={column.key} className={column.numeric ? "numeric" : undefined} key={column.key}>
                         {column.key === "symbol" ? (
-                          <button type="button" className="screener-symbol" onClick={(event) => { event.stopPropagation(); setSelectedStock(record); onOpenStock(record); }}>{record.symbol}</button>
+                          <div className="screener-stock-identity">
+                            <button type="button" className="screener-symbol" onClick={(event) => { event.stopPropagation(); setSelectedStock(record); onOpenStock(record); }}>{record.symbol}</button>
+                            <button
+                              type="button"
+                              className="screener-industry-inline"
+                              data-industry-cell
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onOpenIndustry(record.industry ?? record.sector ?? "");
+                              }}
+                              title="Open Industry Stocks and load all charts for this industry"
+                            >{record.industry ?? record.sector ?? "Industry unavailable"}</button>
+                          </div>
                         ) : column.key === "industry" ? (
                           <button
                             type="button"
