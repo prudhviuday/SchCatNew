@@ -3409,3 +3409,13 @@ body, .terminal-shell, .desktop-tab-panel { background: #080d12; }
   .screener-stock-identity .screener-symbol { font-size: 11px; }
   .screener-industry-inline { max-width: 170px; }
 }
+
+/* Fill the usable desktop viewport with the side-by-side screener panels.
+   Header: 52px; screener content spacing: 2px top + 16px bottom. */
+@media (min-width: 1241px) {
+  .screener-main-workspace {
+    height: calc(100vh - 70px);
+    height: calc(100dvh - 70px);
+    min-height: 0;
+  }
+}
