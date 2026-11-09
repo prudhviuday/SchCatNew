@@ -624,155 +624,154 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
 
   return (
     <div className="screener-content screener-desktop-content">
-      <div className="screener-commandbar">
-        <div className="screener-commandbar-main">
-          <button
-            type="button"
-            className="screener-button screener-command-button"
-            onClick={() => void refreshMarketSmithData()}
-            disabled={loading || marketSmithRefresh.status === "loading" || records.length === 0}
-          >
-            {marketSmithRefresh.status === "loading"
-              ? "Fetching " + marketSmithRefresh.completed.toLocaleString("en-IN") + "/" + marketSmithRefresh.total.toLocaleString("en-IN")
-              : "▶ Fetch Data"}
-          </button>
-          <span className="screener-command-count">
-            {loading ? "Loading universe…" : filteredRecords.length.toLocaleString("en-IN") + " / " + records.length.toLocaleString("en-IN")}
-          </span>
-        </div>
-
-        <label className="screener-command-search">
-          <span>⌕</span>
-          <input
-            aria-label="Search stock"
-            value={search}
-            onChange={(event) => { setSearch(event.target.value);  }}
-            placeholder="Search Stock"
-          />
-          {search && <button type="button" aria-label="Clear search" onClick={() => setSearch("")}>×</button>}
-        </label>
-
-        <button
-          type="button"
-          className={"screener-icon-button" + (activeAdvancedFilterCount ? " has-filters" : "")}
-          aria-label="Open filter settings"
-          title="Filter settings"
-          onClick={() => { setSettingsSection("filters"); setSettingsOpen(true); }}
-        >
-          <span aria-hidden="true">⚙</span>
-          {activeAdvancedFilterCount > 0 && <small>{activeAdvancedFilterCount}</small>}
-        </button>
-
-        <button
-          type="button"
-          className="screener-button secondary screener-command-button"
-          onClick={() => downloadCsv(filteredRecords)}
-          disabled={loading || filteredRecords.length === 0}
-        >
-          ↓ Download
-        </button>
-
-        <div className="screener-command-dropdown">
-          <button
-            type="button"
-            className="screener-button secondary screener-command-button"
-            aria-expanded={queryMenuOpen}
-            onClick={() => {
-              if (!queryMenuOpen) setQueryDraft(selectedQueries);
-              setQueryMenuOpen((open) => !open);
-            }}
-          >
-            Query{selectedQueries.length ? " (" + selectedQueries.length + ")" : ""} ▾
-          </button>
-          {queryMenuOpen && (
-            <div className="screener-command-menu">
-              <div className="screener-command-menu-heading">
-                <strong>Select queries</strong>
-                <button type="button" aria-label="Close query menu" onClick={() => setQueryMenuOpen(false)}>×</button>
-              </div>
-              {queries.length === 0 ? (
-                <p className="screener-muted">No saved queries. Open Settings → Queries to create one.</p>
-              ) : queries.map((query) => (
-                <div className="screener-command-query" key={query.name}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={queryDraft.includes(query.name)}
-                      onChange={(event) => setQueryDraft((current) => event.target.checked
-                        ? [...current, query.name]
-                        : current.filter((name) => name !== query.name))}
-                    />
-                    <span>{query.name}</span>
-                    <small>{query.symbols.length}</small>
-                  </label>
-                  {query.queryCode && (
-                    <button
-                      type="button"
-                      className="screener-query-run"
-                      disabled={queryRuns[query.name]?.status === "loading"}
-                      onClick={() => void runSavedQuery(query.name)}
-                    >
-                      {queryRuns[query.name]?.status === "loading" ? "Running…" : "Scan"}
-                    </button>
-                  )}
-                  {queryRuns[query.name] && <small className={"screener-query-run-status " + queryRuns[query.name].status}>{queryRuns[query.name].message}</small>}
-                </div>
-              ))}
-              <div className="screener-command-menu-footer">
-                <button type="button" className="screener-text-button" onClick={() => { setSettingsSection("queries"); setSettingsOpen(true); setQueryMenuOpen(false); }}>Manage</button>
-                <button type="button" className="screener-button" onClick={() => { setSelectedQueries(queryDraft);  setQueryMenuOpen(false); }}>Go</button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="screener-watchlist-command">
-          <select
-            aria-label="Select watchlist"
-            value={watchlistTarget}
-            onChange={(event) => setWatchlistTarget(event.target.value)}
-          >
-            <option value="">Watchlist</option>
-            {library.watchlists.map((item) => <option key={item.name} value={item.name}>{item.name} ({item.symbols.length})</option>)}
-          </select>
-          <button
-            type="button"
-            className="screener-button secondary screener-command-button"
-            onClick={() => { setActiveWatchlist((current) => toggleWatchlistFilter(current, watchlistTarget));  }}
-          >
-            {activeWatchlist && activeWatchlist === watchlistTarget ? "Drop" : "Go"}
-          </button>
-        </div>
-
-        <button
-          type="button"
-          className="screener-button secondary screener-command-button"
-          onClick={() => { setSettingsSection("watchlists"); setSettingsOpen(true); }}
-        >
-          Library
-        </button>
-      </div>
-
-      <div className="screener-status-strip" role="status" aria-live="polite">
-        <span>
-          {loading ? "Loading stock universe…" : activeWatchlist ? "Watchlist: " + activeWatchlist : "All stocks"}
-          {selectedQueries.length ? " · " + selectedQueries.join(" ∩ ") : ""}
-        </span>
-        {marketSmithRefresh.status === "loading" ? (
-          <span>MarketSmith {marketSmithRefresh.completed}/{marketSmithRefresh.total}</span>
-        ) : marketSmithRefresh.status === "error" ? (
-          <span className="screener-inline-error">{marketSmithRefresh.message}</span>
-        ) : marketSmithRefresh.status === "complete" ? (
-          <span>MarketSmith: {marketSmithRefresh.succeeded} updated · {marketSmithRefresh.failed} failed · {marketSmithRefresh.skipped} skipped</span>
-        ) : null}
-        {nikRefresh.status === "loading" ? <span>NikScore {nikRefresh.completed}/{nikRefresh.total}</span> : null}
-        {nikRefresh.status === "error" ? <span className="screener-inline-error">{nikRefresh.message}</span> : null}
-      </div>
-
-      {loadError && <div className="screener-error" role="alert">{loadError}</div>}
-
       <div className="screener-main-workspace">
         <section className="screener-table-panel">
+          <div className="screener-commandbar">
+            <div className="screener-commandbar-main">
+              <button
+                type="button"
+                className="screener-button screener-command-button"
+                onClick={() => void refreshMarketSmithData()}
+                disabled={loading || marketSmithRefresh.status === "loading" || records.length === 0}
+              >
+                {marketSmithRefresh.status === "loading"
+                  ? "Fetching " + marketSmithRefresh.completed.toLocaleString("en-IN") + "/" + marketSmithRefresh.total.toLocaleString("en-IN")
+                  : "▶ Fetch Data"}
+              </button>
+              <span className="screener-command-count">
+                {loading ? "Loading universe…" : filteredRecords.length.toLocaleString("en-IN") + " / " + records.length.toLocaleString("en-IN")}
+              </span>
+            </div>
+    
+            <label className="screener-command-search">
+              <span>⌕</span>
+              <input
+                aria-label="Search stock"
+                value={search}
+                onChange={(event) => { setSearch(event.target.value);  }}
+                placeholder="Search Stock"
+              />
+              {search && <button type="button" aria-label="Clear search" onClick={() => setSearch("")}>×</button>}
+            </label>
+    
+            <button
+              type="button"
+              className={"screener-icon-button" + (activeAdvancedFilterCount ? " has-filters" : "")}
+              aria-label="Open filter settings"
+              title="Filter settings"
+              onClick={() => { setSettingsSection("filters"); setSettingsOpen(true); }}
+            >
+              <span aria-hidden="true">⚙</span>
+              {activeAdvancedFilterCount > 0 && <small>{activeAdvancedFilterCount}</small>}
+            </button>
+    
+            <button
+              type="button"
+              className="screener-button secondary screener-command-button"
+              onClick={() => downloadCsv(filteredRecords)}
+              disabled={loading || filteredRecords.length === 0}
+            >
+              ↓ Download
+            </button>
+    
+            <div className="screener-command-dropdown">
+              <button
+                type="button"
+                className="screener-button secondary screener-command-button"
+                aria-expanded={queryMenuOpen}
+                onClick={() => {
+                  if (!queryMenuOpen) setQueryDraft(selectedQueries);
+                  setQueryMenuOpen((open) => !open);
+                }}
+              >
+                Query{selectedQueries.length ? " (" + selectedQueries.length + ")" : ""} ▾
+              </button>
+              {queryMenuOpen && (
+                <div className="screener-command-menu">
+                  <div className="screener-command-menu-heading">
+                    <strong>Select queries</strong>
+                    <button type="button" aria-label="Close query menu" onClick={() => setQueryMenuOpen(false)}>×</button>
+                  </div>
+                  {queries.length === 0 ? (
+                    <p className="screener-muted">No saved queries. Open Settings → Queries to create one.</p>
+                  ) : queries.map((query) => (
+                    <div className="screener-command-query" key={query.name}>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={queryDraft.includes(query.name)}
+                          onChange={(event) => setQueryDraft((current) => event.target.checked
+                            ? [...current, query.name]
+                            : current.filter((name) => name !== query.name))}
+                        />
+                        <span>{query.name}</span>
+                        <small>{query.symbols.length}</small>
+                      </label>
+                      {query.queryCode && (
+                        <button
+                          type="button"
+                          className="screener-query-run"
+                          disabled={queryRuns[query.name]?.status === "loading"}
+                          onClick={() => void runSavedQuery(query.name)}
+                        >
+                          {queryRuns[query.name]?.status === "loading" ? "Running…" : "Scan"}
+                        </button>
+                      )}
+                      {queryRuns[query.name] && <small className={"screener-query-run-status " + queryRuns[query.name].status}>{queryRuns[query.name].message}</small>}
+                    </div>
+                  ))}
+                  <div className="screener-command-menu-footer">
+                    <button type="button" className="screener-text-button" onClick={() => { setSettingsSection("queries"); setSettingsOpen(true); setQueryMenuOpen(false); }}>Manage</button>
+                    <button type="button" className="screener-button" onClick={() => { setSelectedQueries(queryDraft);  setQueryMenuOpen(false); }}>Go</button>
+                  </div>
+                </div>
+              )}
+            </div>
+    
+            <div className="screener-watchlist-command">
+              <select
+                aria-label="Select watchlist"
+                value={watchlistTarget}
+                onChange={(event) => setWatchlistTarget(event.target.value)}
+              >
+                <option value="">Watchlist</option>
+                {library.watchlists.map((item) => <option key={item.name} value={item.name}>{item.name} ({item.symbols.length})</option>)}
+              </select>
+              <button
+                type="button"
+                className="screener-button secondary screener-command-button"
+                onClick={() => { setActiveWatchlist((current) => toggleWatchlistFilter(current, watchlistTarget));  }}
+              >
+                {activeWatchlist && activeWatchlist === watchlistTarget ? "Drop" : "Go"}
+              </button>
+            </div>
+    
+            <button
+              type="button"
+              className="screener-button secondary screener-command-button"
+              onClick={() => { setSettingsSection("watchlists"); setSettingsOpen(true); }}
+            >
+              Library
+            </button>
+          </div>
+    
+          <div className="screener-status-strip" role="status" aria-live="polite">
+            <span>
+              {loading ? "Loading stock universe…" : activeWatchlist ? "Watchlist: " + activeWatchlist : "All stocks"}
+              {selectedQueries.length ? " · " + selectedQueries.join(" ∩ ") : ""}
+            </span>
+            {marketSmithRefresh.status === "loading" ? (
+              <span>MarketSmith {marketSmithRefresh.completed}/{marketSmithRefresh.total}</span>
+            ) : marketSmithRefresh.status === "error" ? (
+              <span className="screener-inline-error">{marketSmithRefresh.message}</span>
+            ) : marketSmithRefresh.status === "complete" ? (
+              <span>MarketSmith: {marketSmithRefresh.succeeded} updated · {marketSmithRefresh.failed} failed · {marketSmithRefresh.skipped} skipped</span>
+            ) : null}
+            {nikRefresh.status === "loading" ? <span>NikScore {nikRefresh.completed}/{nikRefresh.total}</span> : null}
+            {nikRefresh.status === "error" ? <span className="screener-inline-error">{nikRefresh.message}</span> : null}
+          </div>
+    
+          {loadError && <div className="screener-error" role="alert">{loadError}</div>}
           <div className="screener-table-top">
             <div>
               <span className="eyebrow">MATCHING STOCKS</span>
