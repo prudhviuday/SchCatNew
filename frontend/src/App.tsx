@@ -12,12 +12,12 @@ import type { MarketUniverseRecord } from "./data/reference/marketUniverse";
 type Page = "screener" | "workspace" | "industry" | "research" | "pulse" | "portfolio" | "analysis";
 
 const WORKSPACE_TABS: ReadonlyArray<{ page: Page; label: string }> = [
-  { page: "screener", label: "Stocks" },
-  { page: "workspace", label: "Chart" },
-  { page: "analysis", label: "Industry Stocks" },
-  { page: "industry", label: "Industry Analysis" },
-  { page: "research", label: "Querys" },
-  { page: "pulse", label: "Market" },
+  { page: "screener", label: "Screener" },
+  { page: "workspace", label: "Charts" },
+  { page: "analysis", label: "Industry Leaders" },
+  { page: "industry", label: "Sector Map" },
+  { page: "research", label: "Research" },
+  { page: "pulse", label: "Market Pulse" },
   { page: "portfolio", label: "Portfolio" }
 ];
 
@@ -58,19 +58,19 @@ function App() {
   return (
     <main className="terminal-shell desktop-shell">
       <header className="desktop-workspace-header">
-        <button
-          type="button"
-          className="desktop-brand"
-          onClick={() => switchToPage("screener")}
-          aria-label="SchCat home — Stocks tab"
-        >
-          <span className="brand-mark">SC</span>
-          <span className="desktop-brand-copy">
-            <strong>SchCat</strong>
-            <small>MARKET ANALYZER</small>
-          </span>
-        </button>
-
+        <div className="finviz-brand-row">
+          <button
+            type="button"
+            className="desktop-brand"
+            onClick={() => switchToPage("screener")}
+            aria-label="SchCat home — Stocks tab"
+          >
+            <span className="brand-mark">SC</span>
+            <span className="desktop-brand-copy">
+              <strong>SchCat</strong>
+              <small>MARKET ANALYZER</small>
+            </span>
+          </button>
         <nav className="desktop-tabs" aria-label="Main workspace tabs">
           {WORKSPACE_TABS.map((tab) => (
             <button
@@ -87,12 +87,13 @@ function App() {
             className="desktop-tab desktop-setup-tab"
             href="/?diagnostics=providers"
             title="Configure provider IDs and your MarketSmith session"
-          >⚙ Setup</a>
+          >Setup</a>
         </nav>
-
-        <div className="desktop-header-meta">
-          <span className="desktop-status-dot" />
-          <span>WORKSPACE</span>
+          <div className="desktop-header-meta">
+            <span className="desktop-status-dot" />
+            <span>MARKET OPEN</span>
+            <span className="finviz-date">09 NOV 2026</span>
+          </div>
         </div>
       </header>
 
