@@ -1764,6 +1764,22 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   border-radius: 6px;
 }
 .screener-main-workspace .screener-table-top { flex: 0 0 auto; padding: 10px 12px 8px; align-items: center; }
+/* The screener command bar belongs to the left table panel; the detail panel starts alongside it. */
+.screener-table-panel > .screener-commandbar {
+  flex: 0 0 auto;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #273344;
+  border-radius: 0;
+  background: #101824;
+}
+.screener-table-panel > .screener-status-strip {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 2px 10px;
+  border-bottom: 1px solid #263243;
+}
+
 .screener-main-workspace .screener-table-top h2 { margin-top: 2px; font-size: 13px; }
 .screener-main-workspace .screener-pagination { gap: 6px; }
 .screener-main-workspace .screener-pagination .screener-button { min-width: 28px; min-height: 26px; padding: 0 7px; }
