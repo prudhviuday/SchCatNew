@@ -886,16 +886,10 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
             <>
               <div className="screener-detail-heading">
                 <div>
-                  <span className="eyebrow">SELECTED STOCK</span>
                   <h2>{selectedStock.symbol}</h2>
                   <p>{selectedStock.industry ?? "Industry unavailable"} · {selectedStock.sector ?? "Sector unavailable"}</p>
                 </div>
                 <button type="button" className="screener-icon-button" aria-label="Open stock chart" title="Open charts" onClick={() => onOpenStock(selectedStock)}>↗</button>
-              </div>
-              <div className="screener-detail-primary">
-                <div><span>Market Cap</span><strong>{compactNumber(selectedStock.marketCap)}</strong></div>
-                <div><span>ROCE (live)</span><strong>{displayScreenerValue(activeSelectedResearch.finance?.annualRoce.at(-1)?.value ?? selectedStock.roce)}</strong></div>
-                <div><span>NikScore</span><strong>{displayScreenerValue(selectedStock.nikScore)}</strong></div>
               </div>
               <div className="screener-detail-grid">
                 {[
@@ -904,13 +898,10 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
                   ["EPS", selectedMetrics?.epsRank],
                   ["Acc/Dis", selectedMetrics?.accDis],
                   ["PE", selectedMetrics?.pe],
-                  ["PEG", selectedMetrics?.peg],
-                  ["FScore", selectedMetrics?.fScore],
-                  ["P/B", selectedStock.pb],
                   ["ROE", selectedMetrics?.roe],
                   ["EPS Growth", selectedMetrics?.epsGrowth],
-                  ["Stability", selectedMetrics?.stability],
-                  ["Cash Flow", selectedMetrics?.cashFlow]
+                  ["Cash Flow", selectedMetrics?.cashFlow],
+                  ["Stability", selectedMetrics?.stability]
                 ].map(([label, value]) => (
                   <div className="screener-detail-metric" key={label as string}>
                     <span>{label}</span>
