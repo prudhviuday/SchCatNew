@@ -1733,15 +1733,16 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   font-size: 10px;
 }
 .screener-status-strip {
-  min-height: 25px;
+  min-height: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 4px 16px;
-  padding: 4px 3px 5px;
+  gap: 2px 12px;
+  padding: 1px 3px 2px;
   color: #7f8da1;
   font-size: 9px;
+  line-height: 1.2;
 }
 .screener-inline-error { color: #e5a0a0; }
 .screener-main-workspace {
@@ -3270,7 +3271,7 @@ body { background: #0b0f14; }
 .desktop-setup-tab { display: inline-flex; align-items: center; text-decoration: none; }
 .desktop-tab-panel { background: #0b0f14; }
 .screener-content, .desktop-tab-panel .workspace-content, .desktop-tab-panel .analysis-content, .desktop-tab-panel .industry-content, .desktop-tab-panel .research-content, .desktop-tab-panel .pulse-content, .desktop-tab-panel .portfolio-content { max-width: 1540px; padding-top: 28px; }
-.screener-desktop-content { padding-top: 8px; }
+.screener-desktop-content { padding-top: 2px; }
 .eyebrow { color: #56b9ad; letter-spacing: 1.6px; }
 h1 { color: #f0f3f5; letter-spacing: -1.2px; }
 .intro, .pulse-heading p, .research-heading p, .portfolio-heading p { color: #87939d; }
