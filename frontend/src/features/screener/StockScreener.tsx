@@ -184,7 +184,6 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
   const [ranges, setRanges] = useState<RangeInputs>(EMPTY_RANGES);
   const [sortField, setSortField] = useState<ScreenerSortField>("symbol");
   const [ascending, setAscending] = useState(true);
-  const [page, setPage] = useState(0);
   const [library, setLibrary] = useState<ScreenerLibrary>(() => loadScreenerLibrary());
   const queries = library.queries;
   const [activeWatchlist, setActiveWatchlist] = useState("");
@@ -368,9 +367,8 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
     return sortScreenerRecords(filtered, sortField, ascending);
   }, [enrichedRecords, filters, selectedQueries, queryMatches, sortField, ascending, activeWatchlist, library.watchlists]);
 
-  const pageSize = 50;
-  const pageCount = Math.max(1, Math.ceil(filteredRecords.length / pageSize));
-  const pageRecords = filteredRecords.slice(page * pageSize, (page + 1) * pageSize);
+  // Render the complete filtered universe in a single scrollable table.
+  const pageRecords = filteredRecords;
 
   async function refreshMarketSmithData() {
     if (marketSmithRefresh.status === "loading" || records.length === 0) return;
@@ -494,7 +492,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
       ...current,
       [field]: { ...current[field], [side]: value }
     }));
-    setPage(0);
+    
   }
 
   function resetFilters() {
@@ -504,7 +502,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
     setRanges(EMPTY_RANGES);
     setSelectedQueries([]);
     setActiveWatchlist("");
-    setPage(0);
+    
   }
 
   function toggleSort(field: ScreenerSortField) {
@@ -513,7 +511,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
       setSortField(field);
       setAscending(true);
     }
-    setPage(0);
+    
   }
 
   async function runSavedQuery(name: string) {
@@ -525,7 +523,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
       setLibrary((current) => upsertSavedQuery(current, { ...saved, symbols: result.symbols }));
       setSelectedQueries((current) => current.includes(name) ? current : [...current, name]);
       setQueryDraft((current) => current.includes(name) ? current : [...current, name]);
-      setPage(0);
+      
       setQueryRuns((current) => ({
         ...current,
         [name]: {
@@ -567,14 +565,14 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
     setQuerySymbols("");
     setQueryCode("");
     setQueryError("");
-    setPage(0);
+    
   }
 
   function removeQuery(name: string) {
     setLibrary(current => removeSavedQuery(current, name));
     setSelectedQueries((current) => current.filter((item) => item !== name));
     setQueryDraft((current) => current.filter((item) => item !== name));
-    setPage(0);
+    
   }
 
   function addSelectedToWatchlist(watchlistName: string | null) {
@@ -647,7 +645,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           <input
             aria-label="Search stock"
             value={search}
-            onChange={(event) => { setSearch(event.target.value); setPage(0); }}
+            onChange={(event) => { setSearch(event.target.value);  }}
             placeholder="Search Stock"
           />
           {search && <button type="button" aria-label="Clear search" onClick={() => setSearch("")}>×</button>}
@@ -721,7 +719,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
               ))}
               <div className="screener-command-menu-footer">
                 <button type="button" className="screener-text-button" onClick={() => { setSettingsSection("queries"); setSettingsOpen(true); setQueryMenuOpen(false); }}>Manage</button>
-                <button type="button" className="screener-button" onClick={() => { setSelectedQueries(queryDraft); setPage(0); setQueryMenuOpen(false); }}>Go</button>
+                <button type="button" className="screener-button" onClick={() => { setSelectedQueries(queryDraft);  setQueryMenuOpen(false); }}>Go</button>
               </div>
             </div>
           )}
@@ -739,7 +737,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           <button
             type="button"
             className="screener-button secondary screener-command-button"
-            onClick={() => { setActiveWatchlist((current) => toggleWatchlistFilter(current, watchlistTarget)); setPage(0); }}
+            onClick={() => { setActiveWatchlist((current) => toggleWatchlistFilter(current, watchlistTarget));  }}
           >
             {activeWatchlist && activeWatchlist === watchlistTarget ? "Drop" : "Go"}
           </button>
@@ -779,11 +777,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
               <span className="eyebrow">MATCHING STOCKS</span>
               <h2>{loading ? "Loading…" : filteredRecords.length.toLocaleString("en-IN") + " results"}</h2>
             </div>
-            <div className="screener-pagination">
-              <span>Page {Math.min(page + 1, pageCount)} of {pageCount}</span>
-              <button type="button" className="screener-button secondary" disabled={page <= 0} onClick={() => setPage((current) => Math.max(0, current - 1))}>‹</button>
-              <button type="button" className="screener-button secondary" disabled={page + 1 >= pageCount} onClick={() => setPage((current) => Math.min(pageCount - 1, current + 1))}>›</button>
-            </div>
+            
           </div>
 
           <div
@@ -868,7 +862,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           </div>
 
           <div className="screener-table-footer">
-            <span>Showing {filteredRecords.length === 0 ? 0 : page * pageSize + 1}–{Math.min((page + 1) * pageSize, filteredRecords.length)} of {filteredRecords.length}</span>
+            <span>All {filteredRecords.length.toLocaleString("en-IN")} matching stocks shown</span>
             <span>Click a row for live fundamentals · Stock opens Chart · Industry opens its stock charts</span>
             <span>→ saves to selected watchlist · keys 1–9 use watchlist order</span>
           </div>
@@ -989,14 +983,14 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
                   <div className="screener-filter-grid screener-settings-basic-filters">
                     <label className="screener-field">
                       <span>Sector</span>
-                      <select value={sector} onChange={(event) => { setSector(event.target.value); setPage(0); }}>
+                      <select value={sector} onChange={(event) => { setSector(event.target.value);  }}>
                         <option value="">All sectors</option>
                         {sectors.map((value) => <option key={value} value={value}>{value}</option>)}
                       </select>
                     </label>
                     <label className="screener-field">
                       <span>Industry</span>
-                      <select value={industry} onChange={(event) => { setIndustry(event.target.value); setPage(0); }}>
+                      <select value={industry} onChange={(event) => { setIndustry(event.target.value);  }}>
                         <option value="">All industries</option>
                         {industries.map((value) => <option key={value} value={value}>{value}</option>)}
                       </select>
