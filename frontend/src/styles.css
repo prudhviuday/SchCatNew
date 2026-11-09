@@ -1617,7 +1617,8 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   align-items: center;
   gap: 7px;
   min-width: 170px;
-  flex: 1 1 190px;
+  flex: 0 1 220px;
+  max-width: 220px;
   height: 31px;
   padding: 0 9px;
   border: 1px solid #344256;
@@ -1953,6 +1954,7 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
 @media (max-width: 1050px) {
   .screener-main-workspace { grid-template-columns: minmax(0, 1fr) 275px; }
   .screener-commandbar { gap: 6px; }
+  .screener-command-search { flex-basis: 190px; max-width: 190px; }
 }
 @media (max-width: 820px) {
   .screener-main-workspace { height: auto; min-height: 0; grid-template-columns: 1fr; }
@@ -1965,7 +1967,7 @@ h2 { font-size: 17px; letter-spacing: -.3px; font-weight: 600; margin: 7px 0 0; 
   .screener-desktop-content { padding: 8px 7px 12px; }
   .screener-commandbar { padding: 6px; gap: 6px; }
   .screener-commandbar-main { flex: 1 1 100%; justify-content: space-between; }
-  .screener-command-search { flex-basis: 100%; }
+  .screener-command-search { flex-basis: 100%; max-width: none; }
   .screener-command-dropdown { flex: 1 1 auto; }
   .screener-command-dropdown > .screener-button { width: 100%; }
   .screener-watchlist-command { flex: 1 1 100%; }
