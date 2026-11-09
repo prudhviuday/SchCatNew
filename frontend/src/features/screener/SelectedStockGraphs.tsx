@@ -26,23 +26,21 @@ export default function SelectedStockGraphs({
 
   return (
     <section className="screener-detail-graphs" aria-label={symbol + " live company history graphs"}>
-      <div className="screener-detail-graphs-heading">
-        <strong>Company history</strong>
-        <span className={"screener-detail-live-status " + status}>{statusLabel}</span>
-      </div>
-      <p className="screener-detail-research-message" role="status" aria-live="polite">
-        {message || "Graphs load automatically when you select a stock."}
-      </p>
+      {status !== "ready" && status !== "idle" && (
+        <p className={"screener-detail-research-message " + status} role="status" aria-live="polite">
+          {message || (status === "loading" ? "Loading company history…" : "Company history unavailable.")}
+        </p>
+      )}
       <article className="screener-detail-graph">
-        <div className="screener-detail-graph-title"><strong>Annual ROCE</strong><span>MarketSmith · %</span></div>
+        <div className="screener-detail-graph-title"><strong>Annual ROCE</strong></div>
         <RoceHistoryChart points={finance?.annualRoce ?? []} />
       </article>
       <article className="screener-detail-graph">
-        <div className="screener-detail-graph-title"><strong>Institutional ownership</strong><span>Fund-held shares · quarterly</span></div>
+        <div className="screener-detail-graph-title"><strong>Institutional ownership</strong></div>
         <InstitutionalOwnershipChart points={metrics?.institutionalOwnership ?? []} />
       </article>
       <article className="screener-detail-graph">
-        <div className="screener-detail-graph-title"><strong>Revenue / EPS</strong><span>Annual · normalized index</span></div>
+        <div className="screener-detail-graph-title"><strong>Revenue / EPS</strong></div>
         <RevenueEpsHistoryChart
           revenue={(finance?.annualRevenue ?? []).map((point) => ({ year: point.year, normalized: point.normalized }))}
           eps={(finance?.annualEps ?? []).map((point) => ({ year: point.year, normalized: point.normalized }))}
