@@ -3419,3 +3419,29 @@ body, .terminal-shell, .desktop-tab-panel { background: #080d12; }
     min-height: 0;
   }
 }
+
+
+.screener-fetch-meta {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+  color: #8997aa;
+  text-align: right;
+  font-size: 9px;
+  line-height: 1.4;
+  max-width: min(48%, 420px);
+}
+.screener-fetch-meta strong { color: #d8e1ed; font-weight: 600; }
+.screener-cache-state { color: #91a0b4; }
+.screener-cache-state.saved { color: #8fd0a8; }
+.screener-cache-state.saving, .screener-cache-state.loading { color: #d8bd7a; }
+.screener-cache-state.unavailable, .screener-cache-state.error,
+.screener-cache-message { color: #e5a0a0; }
+.screener-cache-message { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .screener-fetch-meta {
+    justify-items: start;
+    text-align: left;
+    max-width: 100%;
+  }
+}
