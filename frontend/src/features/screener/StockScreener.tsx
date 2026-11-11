@@ -16,6 +16,7 @@ import {
   type MarketSmithLiveMetrics
 } from "../../data/providers/marketSmithStockData";
 import { addSymbolToWatchlist, loadScreenerLibrary, mergeScreenerLibraries, parseScreenerLibraryJson, parseSavedQueriesCsv, parseWatchlistsCsv, removeSavedQuery, removeSymbolFromWatchlist, saveScreenerLibrary, serializeScreenerLibrary, serializeSavedQueriesCsv, serializeWatchlistsCsv, upsertSavedQuery, type ScreenerLibrary } from "./watchlists";
+import { loadScreenerCache, saveScreenerCache, type ScreenerCacheSnapshot } from "./screenerCache";
 import {
   applyScreenerFilters,
   parseSymbolList,
@@ -136,6 +137,14 @@ function toNumber(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+function formatFetchTimestamp(value: string | null): string {
+  if (!value) return "Not fetched yet";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+}
+
 type SelectedStockResearchState = {
   symbol: string;
   status: "idle" | "loading" | "ready" | "partial" | "auth-required" | "error";
@@ -175,6 +184,9 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
     message: ""
   });
   const [liveUpdatedAt, setLiveUpdatedAt] = useState<string | null>(null);
+  const [nikUpdatedAt, setNikUpdatedAt] = useState<string | null>(null);
+  const [cacheStatus, setCacheStatus] = useState<"loading" | "ready" | "saving" | "saved" | "unavailable" | "error">("loading");
+  const [cacheMessage, setCacheMessage] = useState("Checking saved market data...");
   const [nikRefresh, setNikRefresh] = useState({ status: "idle" as "idle" | "loading" | "complete" | "error", completed: 0, total: 0, succeeded: 0, failed: 0, message: "" });
   const [industries, setIndustries] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -211,18 +223,79 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([loadMarketUniverse(), loadIndustryList()])
-      .then(([universe, industryList]) => {
+    void (async () => {
+      try {
+        const [universe, industryList] = await Promise.all([loadMarketUniverse(), loadIndustryList()]);
+        let snapshot: ScreenerCacheSnapshot | null = null;
+        let cacheAvailable = true;
+        let cacheFailure = "";
+        try {
+          snapshot = await loadScreenerCache();
+        } catch (error) {
+          cacheAvailable = false;
+          cacheFailure = error instanceof Error ? error.message : "Server-side cache is unavailable.";
+        }
         if (cancelled) return;
-        setRecords(universe.records);
+
+        const sameUniverse = Boolean(
+          snapshot &&
+          snapshot.records.length === universe.records.length &&
+          snapshot.records.every((record, index) => record.symbol === universe.records[index]?.symbol)
+        );
+        const restored = sameUniverse ? snapshot : null;
+        setRecords(restored?.records ?? universe.records);
+        setLiveMetrics(restored?.liveMetrics ?? {});
         setIndustries(industryList.industries);
+
+        if (restored) {
+          setLiveUpdatedAt(restored.marketSmithUpdatedAt);
+          setNikUpdatedAt(restored.nikUpdatedAt);
+          if (restored.marketSmithUpdatedAt) {
+            const succeeded = restored.marketSmithSummary?.succeeded ?? Object.keys(restored.liveMetrics).length;
+            setMarketSmithRefresh({
+              status: "complete",
+              completed: universe.records.length,
+              total: universe.records.length,
+              succeeded,
+              failed: restored.marketSmithSummary?.failed ?? 0,
+              skipped: restored.marketSmithSummary?.skipped ?? 0,
+              message: `Restored ${succeeded.toLocaleString("en-IN")} saved MarketSmith stock records from the server.`
+            });
+          }
+          if (restored.nikUpdatedAt) {
+            const succeeded = restored.nikSummary?.succeeded ?? universe.records.length;
+            const failed = restored.nikSummary?.failed ?? 0;
+            setNikRefresh({
+              status: "complete",
+              completed: universe.records.length,
+              total: universe.records.length,
+              succeeded,
+              failed,
+              message: `Restored saved NikScore values for ${succeeded.toLocaleString("en-IN")} stocks from the server.`
+            });
+          }
+        }
+
+        if (cacheAvailable) {
+          setCacheStatus(restored ? "saved" : "ready");
+          setCacheMessage(restored
+            ? "Loaded the latest shared server snapshot."
+            : snapshot
+              ? "A saved snapshot was found for a different universe and was ignored."
+              : "Server cache is ready. The next refresh will be saved automatically.");
+        } else {
+          setCacheStatus("unavailable");
+          setCacheMessage(cacheFailure);
+        }
         setLoading(false);
-      })
-      .catch((error: unknown) => {
+      } catch (error) {
         if (cancelled) return;
         setLoadError(error instanceof Error ? error.message : "Unable to load reference data");
+        setCacheStatus("unavailable");
+        setCacheMessage("Reference data loaded without the server cache.");
         setLoading(false);
-      });
+      }
+    })();
     return () => { cancelled = true; };
   }, []);
 
@@ -371,6 +444,22 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
   // Render the complete filtered universe in a single scrollable table.
   const pageRecords = filteredRecords;
 
+  async function persistScreenerSnapshot(snapshot: ScreenerCacheSnapshot) {
+    setCacheStatus("saving");
+    setCacheMessage("Saving stock data to the server...");
+    try {
+      await saveScreenerCache(snapshot);
+      setCacheStatus("saved");
+      setCacheMessage("Latest stock data is saved on the server.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to save the server-side stock snapshot.";
+      setCacheStatus(message.toLowerCase().includes("kv") || message.toLowerCase().includes("server-side")
+        ? "unavailable"
+        : "error");
+      setCacheMessage(message);
+    }
+  }
+
   async function refreshMarketSmithData() {
     if (marketSmithRefresh.status === "loading" || records.length === 0) return;
     const auth = readStoredMarketSmithAuth();
@@ -412,8 +501,12 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           }));
         }
       });
-      setLiveMetrics(Object.fromEntries(result.metrics.entries()));
-      const updatedAt = new Date().toLocaleString("en-IN");
+      const mergedMetrics = {
+        ...liveMetrics,
+        ...Object.fromEntries(result.metrics.entries())
+      };
+      setLiveMetrics(mergedMetrics);
+      const updatedAt = new Date().toISOString();
       setLiveUpdatedAt(updatedAt);
       const message = `${result.metrics.size.toLocaleString("en-IN")} stocks updated; ${result.failures.length.toLocaleString("en-IN")} requests failed; ${result.skippedWithoutId.toLocaleString("en-IN")} stocks had no MarketSmith ID.`;
       setMarketSmithRefresh({
@@ -426,6 +519,20 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
         message: result.failures.length > 0
           ? message + ` First error: ${result.failures[0].message}`
           : message
+      });
+      await persistScreenerSnapshot({
+        schemaVersion: 1,
+        savedAt: new Date().toISOString(),
+        marketSmithUpdatedAt: updatedAt,
+        nikUpdatedAt,
+        marketSmithSummary: {
+          succeeded: result.metrics.size,
+          failed: result.failures.length,
+          skipped: result.skippedWithoutId
+        },
+        nikSummary: nikUpdatedAt ? { succeeded: nikRefresh.succeeded, failed: nikRefresh.failed } : null,
+        records,
+        liveMetrics: mergedMetrics
       });
     } catch (error) {
       setMarketSmithRefresh((current) => ({
@@ -479,9 +586,25 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
       });
       await Promise.all(workers);
       setRecords(updated);
+      const updatedAt = new Date().toISOString();
+      setNikUpdatedAt(updatedAt);
       setNikRefresh({
         status: "complete", completed, total: records.length, succeeded, failed,
-        message: `NikScore updated for ${succeeded.toLocaleString("en-IN")} stocks; ${failed.toLocaleString("en-IN")} used the legacy failure fallback (P/B 100, ROCE 0, NikScore 0). Export CSV to save the refreshed values.`
+        message: `NikScore updated for ${succeeded.toLocaleString("en-IN")} stocks; ${failed.toLocaleString("en-IN")} used the legacy failure fallback (P/B 100, ROCE 0, NikScore 0).`
+      });
+      await persistScreenerSnapshot({
+        schemaVersion: 1,
+        savedAt: new Date().toISOString(),
+        marketSmithUpdatedAt: liveUpdatedAt,
+        nikUpdatedAt: updatedAt,
+        marketSmithSummary: liveUpdatedAt ? {
+          succeeded: marketSmithRefresh.succeeded,
+          failed: marketSmithRefresh.failed,
+          skipped: marketSmithRefresh.skipped
+        } : null,
+        nikSummary: { succeeded, failed },
+        records: updated,
+        liveMetrics
       });
     } catch (error) {
       setNikRefresh(current => ({ ...current, status: "error", message: error instanceof Error ? error.message : "NikScore refresh failed." }));
@@ -774,10 +897,21 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           {loadError && <div className="screener-error" role="alert">{loadError}</div>}
           <div className="screener-table-top">
             <div>
-<span className="eyebrow">MARKET UNIVERSE</span>
-          <h2>{loading ? "Loading universe…" : filteredRecords.length.toLocaleString("en-IN") + " stocks found"}</h2>
+              <span className="eyebrow">MARKET UNIVERSE</span>
+              <h2>{loading ? "Loading universe…" : filteredRecords.length.toLocaleString("en-IN") + " stocks found"}</h2>
             </div>
-            
+            <div className="screener-fetch-meta" aria-live="polite">
+              <span>MarketSmith fetched: <strong>{formatFetchTimestamp(liveUpdatedAt)}</strong></span>
+              {nikUpdatedAt && <span>NikScore updated: <strong>{formatFetchTimestamp(nikUpdatedAt)}</strong></span>}
+              <span className={"screener-cache-state " + cacheStatus}>
+                {cacheStatus === "loading" ? "Checking server cache…" :
+                  cacheStatus === "saving" ? "Saving to server…" :
+                    cacheStatus === "saved" ? "Server snapshot saved" :
+                      cacheStatus === "ready" ? "Server cache ready" :
+                        cacheStatus === "unavailable" ? "Server cache unavailable" : "Server save failed"}
+              </span>
+              {(cacheStatus === "unavailable" || cacheStatus === "error") && <span className="screener-cache-message">{cacheMessage}</span>}
+            </div>
           </div>
 
           <div
@@ -1167,15 +1301,15 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
                   </div>
                   <div className="screener-data-status">
                     <strong>MarketSmith</strong>
-                    <span>{marketSmithRefresh.status === "idle" ? "Not fetched in this session." : marketSmithRefresh.message}{liveUpdatedAt ? " · Updated " + liveUpdatedAt : ""}</span>
+                    <span>{marketSmithRefresh.status === "idle" ? "Not fetched yet." : marketSmithRefresh.message}{liveUpdatedAt ? " · Updated " + formatFetchTimestamp(liveUpdatedAt) : ""}</span>
                     {marketSmithRefresh.status === "loading" && <progress value={marketSmithRefresh.completed} max={Math.max(1, marketSmithRefresh.total)} />}
                   </div>
                   <div className="screener-data-status">
                     <strong>NikScore</strong>
-                    <span>{nikRefresh.status === "idle" ? "Ready to calculate from the original quarterly growth, ROCE and P/B score." : nikRefresh.message}</span>
+                    <span>{nikRefresh.status === "idle" ? "Ready to calculate from the original quarterly growth, ROCE and P/B score." : nikRefresh.message}{nikUpdatedAt ? " · Updated " + formatFetchTimestamp(nikUpdatedAt) : ""}</span>
                     {nikRefresh.status === "loading" && <progress value={nikRefresh.completed} max={Math.max(1, nikRefresh.total)} />}
                   </div>
-                  <p className="screener-settings-note">Market Cap, P/B, ROCE and NikScore reference fields may be from an undated workbook snapshot. Refreshed MarketSmith values remain in page memory until you export the filtered CSV.</p>
+                  <p className="screener-settings-note">MarketSmith rankings, live metrics and recalculated NikScore values are saved as one shared JSON snapshot on the server and restored automatically after reload. Your MarketSmith session token remains in this browser and is never written to the shared cache.</p>
                 </>
               )}
             </div>
