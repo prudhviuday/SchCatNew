@@ -17,11 +17,12 @@ test("health endpoint reports the server-side provider API", async () => {
   const body = await response.json();
   assert.equal(body.ok, true);
   assert.deepEqual(body.providers, ["yahoo", "marketsmith", "chartink", "nse"]);
-  assert.equal(body.version, "3");
+  assert.equal(body.version, "4");
   assert.deepEqual(body.routes, [
     "GET /api/yahoo/chart", "GET /api/marketsmith/finance",
     "GET /api/marketsmith/symbol", "GET /api/marketsmith/relative-strength",
-    "POST /api/chartink/scan", "GET /api/nse/delivery"
+    "POST /api/chartink/scan", "GET /api/nse/delivery",
+    "GET /api/screener/cache", "PUT /api/screener/cache"
   ]);
 });
 
@@ -355,4 +356,67 @@ test("unexpected Worker API exceptions return a stable JSON error", async () => 
   const response = await worker.fetch(new Request("https://schcatnew.test/api/yahoo/chart?symbol=RELIANCE.NS&interval=1d&range=2y"), { ASSETS: { fetch: async () => new Response("asset") } });
   assert.equal(response.status, 502);
   assert.deepEqual(await response.json(), { error: "worker_api_error", message: "The SchCatNew Worker could not complete this API request. Please retry." });
+});
+
+
+test("screener cache reports a missing KV binding clearly", async () => {
+  const response = await worker.fetch(
+    new Request("https://schcatnew.test/api/screener/cache"),
+    { ASSETS: { fetch: async () => new Response("asset") } }
+  );
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error, "screener_cache_not_configured");
+});
+
+test("screener cache stores and restores the latest JSON snapshot through KV", async () => {
+  const values = new Map();
+  const env = {
+    ASSETS: { fetch: async () => new Response("asset") },
+    SCREENER_CACHE: {
+      get: async (key) => values.get(key) ?? null,
+      put: async (key, value) => { values.set(key, value); }
+    }
+  };
+  const snapshot = {
+    schemaVersion: 1,
+    savedAt: "2026-11-11T10:00:00.000Z",
+    marketSmithUpdatedAt: "2026-11-11T09:55:00.000Z",
+    nikUpdatedAt: "2026-11-11T09:58:00.000Z",
+    marketSmithSummary: { succeeded: 2200, failed: 40, skipped: 16 },
+    nikSummary: { succeeded: 2180, failed: 76 },
+    records: [{ symbol: "RELIANCE", instrumentId: 123, marketCap: 100, sector: "Energy", industry: "Oil", pb: 2, roce: 20, nikScore: 85 }],
+    liveMetrics: { RELIANCE: { groupRank: 1, rs: 95 } }
+  };
+
+  const write = await worker.fetch(
+    new Request("https://schcatnew.test/api/screener/cache", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(snapshot)
+    }),
+    env
+  );
+  assert.equal(write.status, 200);
+  assert.equal((await write.json()).ok, true);
+
+  const read = await worker.fetch(new Request("https://schcatnew.test/api/screener/cache"), env);
+  assert.equal(read.status, 200);
+  assert.deepEqual((await read.json()).data, snapshot);
+});
+
+test("screener cache rejects an invalid snapshot without writing it", async () => {
+  let writes = 0;
+  const response = await worker.fetch(
+    new Request("https://schcatnew.test/api/screener/cache", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ schemaVersion: 1, records: [{ symbol: "bad symbol" }], liveMetrics: {} })
+    }),
+    {
+      SCREENER_CACHE: { put: async () => { writes++; } },
+      ASSETS: { fetch: async () => new Response("asset") }
+    }
+  );
+  assert.equal(response.status, 400);
+  assert.equal(writes, 0);
 });
