@@ -391,6 +391,70 @@ async function chartInkScan(request) {
   });
 }
 
+
+const SCREENER_CACHE_KEY = "market-universe:v1";
+const MAX_SCREENER_CACHE_BYTES = 20 * 1024 * 1024;
+
+function validScreenerCachePayload(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  if (value.schemaVersion !== 1 || !Array.isArray(value.records) || value.records.length > 10000) return false;
+  if (!value.liveMetrics || typeof value.liveMetrics !== "object" || Array.isArray(value.liveMetrics)) return false;
+  if (value.records.some((record) => !record || typeof record !== "object" || !validSymbol(record.symbol))) return false;
+  if (value.marketSmithUpdatedAt !== null && typeof value.marketSmithUpdatedAt !== "string") return false;
+  if (value.nikUpdatedAt !== null && typeof value.nikUpdatedAt !== "string") return false;
+  if (Object.keys(value.liveMetrics).length > value.records.length) return false;
+  return true;
+}
+
+async function getScreenerCache(env) {
+  const namespace = env.SCREENER_CACHE;
+  if (!namespace || typeof namespace.get !== "function") {
+    return json({
+      error: "screener_cache_not_configured",
+      message: "The server-side screener cache is not connected. Configure the SCREENER_CACHE KV namespace binding."
+    }, 503);
+  }
+  const stored = await namespace.get(SCREENER_CACHE_KEY, "text");
+  if (!stored) return json({ data: null });
+  let data;
+  try {
+    data = JSON.parse(stored);
+  } catch {
+    return json({ error: "screener_cache_invalid_json" }, 500);
+  }
+  if (!validScreenerCachePayload(data)) return json({ error: "screener_cache_invalid_data" }, 500);
+  return json({ data });
+}
+
+async function putScreenerCache(request, env) {
+  const namespace = env.SCREENER_CACHE;
+  if (!namespace || typeof namespace.put !== "function") {
+    return json({
+      error: "screener_cache_not_configured",
+      message: "The server-side screener cache is not connected. Configure the SCREENER_CACHE KV namespace binding."
+    }, 503);
+  }
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > MAX_SCREENER_CACHE_BYTES) return json({ error: "screener_cache_too_large" }, 413);
+
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).byteLength > MAX_SCREENER_CACHE_BYTES) {
+    return json({ error: "screener_cache_too_large" }, 413);
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(raw);
+  } catch {
+    return json({ error: "invalid_json_body" }, 400);
+  }
+  if (!validScreenerCachePayload(payload)) return json({ error: "invalid_screener_cache_payload" }, 400);
+
+  // No TTL: keep the latest completed stock-data snapshot until a user refreshes it.
+  await namespace.put(SCREENER_CACHE_KEY, raw);
+  return json({ ok: true, savedAt: payload.savedAt || new Date().toISOString() });
+}
+
 async function handleApi(request, env) {
   const url = new URL(request.url);
   if (url.pathname === "/api/health" && request.method !== "GET") {
@@ -400,7 +464,7 @@ async function handleApi(request, env) {
     return json({
       ok: true,
       service: "schcatnew-api",
-      version: "3",
+      version: "4",
       providers: ["yahoo", "marketsmith", "chartink", "nse"],
       routes: [
         "GET /api/yahoo/chart",
@@ -408,7 +472,9 @@ async function handleApi(request, env) {
         "GET /api/marketsmith/symbol",
         "GET /api/marketsmith/relative-strength",
         "POST /api/chartink/scan",
-        "GET /api/nse/delivery"
+        "GET /api/nse/delivery",
+        "GET /api/screener/cache",
+        "PUT /api/screener/cache"
       ],
       marketSmithAuthConfigured: Boolean(
         env.MARKETSMITH_AUTH ||
@@ -416,6 +482,12 @@ async function handleApi(request, env) {
         env.MARKETSMITH_SYMBOL_AUTH
       )
     });
+  }
+
+  if (url.pathname === "/api/screener/cache") {
+    if (request.method === "GET") return getScreenerCache(env);
+    if (request.method === "PUT") return putScreenerCache(request, env);
+    return json({ error: "method_not_allowed" }, 405, { allow: "GET, PUT" });
   }
 
   if (url.pathname === "/api/yahoo/chart" && request.method !== "GET") return json({ error: "method_not_allowed" }, 405, { allow: "GET" });
