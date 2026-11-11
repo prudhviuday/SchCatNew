@@ -18,4 +18,4 @@ run_worker_first = ["/api/*"]
 # Then uncomment the binding below and replace the placeholder with the returned ID.
 # [[kv_namespaces]]
 # binding = "SCREENER_CACHE"
-# id = "<YOUR_SCReENER_CACHE_NAMESPACE_ID>"
+# id = "<YOUR_SCREENER_CACHE_NAMESPACE_ID>"
