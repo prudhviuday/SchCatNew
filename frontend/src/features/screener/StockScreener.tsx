@@ -530,7 +530,7 @@ function StockScreener({ onOpenStock, onOpenIndustry }: { onOpenStock: (record: 
           failed: result.failures.length,
           skipped: result.skippedWithoutId
         },
-        nikSummary: nikUpdatedAt ? { succeeded: records.length, failed: 0 } : null,
+        nikSummary: nikUpdatedAt ? { succeeded: nikRefresh.succeeded, failed: nikRefresh.failed } : null,
         records,
         liveMetrics: mergedMetrics
       });
