@@ -17,3 +17,8 @@ run_worker_first = ["/api/*"]
 [[kv_namespaces]]
 binding = "SCREENER_CACHE"
 id = "134f223d739a489db012de16761acb49"
+
+# Preview deployments do not inherit production bindings.
+[[previews.kv_namespaces]]
+binding = "SCREENER_CACHE"
+id = "134f223d739a489db012de16761acb49"
