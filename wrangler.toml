@@ -13,7 +13,9 @@ binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = ["/api/*"]
 
-# Persist the latest Market Universe + MarketSmith + NikScore snapshot across visits.
-# Wrangler provisions this KV namespace on the first deployment.
-[[kv_namespaces]]
-binding = "SCREENER_CACHE"
+# Server-side screener data persistence.
+# One-time setup: run "npx wrangler kv namespace create SCREENER_CACHE".
+# Then uncomment the binding below and replace the placeholder with the returned ID.
+# [[kv_namespaces]]
+# binding = "SCREENER_CACHE"
+# id = "<YOUR_SCReENER_CACHE_NAMESPACE_ID>"
